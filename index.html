@@ -46,11 +46,23 @@
     button:hover {
       background-color: #20446E;
     }
-    .photo-preview {
-      max-width: 220px;
-      margin-top: 12px;
-      border: 2px solid #2C5E99;
-      border-radius: 6px;
+    .entry-group {
+      border: 1px solid #bbb;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #EAF2FB;
+    }
+    .delete-btn {
+      background-color: #c33;
+      color: white;
+      font-size: 0.95rem;
+      margin-top: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+    .delete-btn:hover {
+      background-color: #a00;
     }
     table {
       width: 100%;
@@ -76,89 +88,52 @@
       border-top: 1px solid #587EA3;
       padding-top: 10px;
     }
-    .entry-group {
-      border: 1px solid #bbb;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-      background-color: #EAF2FB;
-    }
-    .delete-btn {
-      background-color: #c33;
-      color: white;
-      font-size: 0.95rem;
-      margin-top: 6px;
-      padding: 6px 10px;
-      border-radius: 4px;
-    }
-    .delete-btn:hover {
-      background-color: #a00;
-    }
   </style>
 </head>
 <body>
-
 <h1>Contrôle de mon chien 🐾</h1>
-
 <form id="dogForm">
-
   <label>Nº Puce</label>
   <input type="text" id="chipId"/>
-
   <label>Nº Passeport</label>
   <input type="text" id="passportId"/>
-
   <label>Date de naissance</label>
   <input type="date" id="birthDate"/>
-
   <label>Poids (kg)</label>
   <input type="number" id="weight" step="0.1"/>
 
-  <!-- VACCINATIONS -->
-  <label>Vaccinations (date + produit)</label>
+  <label>Vaccinations</label>
   <div id="vaccinationList"></div>
   <button type="button" onclick="addVaccination()">+ Ajouter vaccination</button>
 
-  <!-- DÉPARASITAGES -->
-  <label>Déparasitage (date + produit)</label>
+  <label>Déparasitage</label>
   <div id="deparasitageList"></div>
   <button type="button" onclick="addDeparasitage()">+ Ajouter déparasitage</button>
 
-  <!-- MALADIES -->
-  <label>Maladies (date + nom + notes)</label>
+  <label>Maladies</label>
   <div id="maladiesList"></div>
   <button type="button" onclick="addMaladie()">+ Ajouter maladie</button>
 
-  <label>Accidents</label>
-  <textarea id="accidents"></textarea>
-
-  <label>Laboratoire (Labo)</label>
-  <textarea id="labo"></textarea>
+  <label>Laboratoire</label>
+  <div id="laboList"></div>
+  <button type="button" onclick="addLabo()">+ Ajouter labo</button>
 
   <label>Radiographies (Rx)</label>
-  <textarea id="rx"></textarea>
+  <div id="rxList"></div>
+  <button type="button" onclick="addRx()">+ Ajouter Rx</button>
 
   <label>Véto / Confrères</label>
   <input type="text" id="veto"/>
-
   <label>Téléphone</label>
   <input type="tel" id="tel"/>
-
   <label>Clinique / Cabinet</label>
   <input type="text" id="clinic"/>
-
   <label>Nourriture</label>
   <textarea id="nourriture"></textarea>
-
   <label>Accessoires</label>
   <textarea id="accessoires"></textarea>
-
   <label>Autres</label>
   <textarea id="autres"></textarea>
-
-  <label>Photo du chien</label>
-  <input type="file" id="photoInput" accept="image/*"/>
-  <img id="photoPreview" class="photo-preview" src="" alt=""/>
 
   <div>
     <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
@@ -166,17 +141,14 @@
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)"/>
     <button type="button" onclick="clearData()">🗑 Effacer les données</button>
   </div>
-
 </form>
 
 <table id="dataTable">
-  <thead>
-    <tr><th>Champ</th><th>Valeur</th></tr>
-  </thead>
+  <thead><tr><th>Champ</th><th>Valeur</th></tr></thead>
   <tbody></tbody>
 </table>
 
-<footer>© Pierre Charlier 2025 — Version 1.4</footer>
+<footer>© Pierre Charlier 2025 — Version 1.6</footer>
 
 <script>
 const fields = [
@@ -184,9 +156,6 @@ const fields = [
   { id: "passportId", label: "Nº Passeport" },
   { id: "birthDate", label: "Date de naissance" },
   { id: "weight", label: "Poids (kg)" },
-  { id: "accidents", label: "Accidents" },
-  { id: "labo", label: "Laboratoire (Labo)" },
-  { id: "rx", label: "Radiographies (Rx)" },
   { id: "veto", label: "Véto / Confrères" },
   { id: "tel", label: "Téléphone" },
   { id: "clinic", label: "Clinique / Cabinet" },
@@ -195,129 +164,28 @@ const fields = [
   { id: "autres", label: "Autres" }
 ];
 
-let photoData = "";
-let vaccinations = [];
-let deparasitage = [];
-let maladies = [];
+let vaccinations = [], deparasitage = [], maladies = [], laboList = [], rxList = [];
 
-// Load saved data
 window.onload = () => {
   const saved = localStorage.getItem("dogData");
   if (saved) {
     const data = JSON.parse(saved);
-
-    // Restore simple fields
     fields.forEach(f => {
       if (data[f.id]) document.getElementById(f.id).value = data[f.id];
     });
-
-    // Restore photo from base64
-    photoData = data.photo || "";
-    if (photoData && photoData.startsWith("data:image")) {
-      document.getElementById("photoPreview").src = photoData;
-    } else {
-      photoData = "";
-      document.getElementById("photoPreview").src = "";
-    }
-
-    // Restore dynamic lists
     vaccinations = data.vaccinations || [];
     deparasitage = data.deparasitage || [];
     maladies = data.maladies || [];
-
+    laboList = data.laboList || [];
+    rxList = data.rxList || [];
     renderEntries();
     updateTable();
   }
 };
 
-// Auto-save basic fields
 fields.forEach(f => {
   document.getElementById(f.id).addEventListener("input", autoSave);
 });
-
-// Photo handling (save independent of file input)
-document.getElementById('photoInput').addEventListener('change', function () {
-  const file = this.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function () {
-    photoData = reader.result;
-    document.getElementById('photoPreview').src = photoData;
-    autoSave();
-  };
-  reader.readAsDataURL(file);
-});
-
-// Functions for dynamic entries
-function addVaccination() {
-  vaccinations.push({ date: "", produit: "" });
-  renderEntries();
-  autoSave();
-}
-function addDeparasitage() {
-  deparasitage.push({ date: "", produit: "" });
-  renderEntries();
-  autoSave();
-}
-function addMaladie() {
-  maladies.push({ date: "", nom: "", notes: "" });
-  renderEntries();
-  autoSave();
-}
-
-function deleteVaccination(i) { vaccinations.splice(i,1); renderEntries(); autoSave(); }
-function deleteDeparasitage(i) { deparasitage.splice(i,1); renderEntries(); autoSave(); }
-function deleteMaladie(i) { maladies.splice(i,1); renderEntries(); autoSave(); }
-
-// Render dynamic lists
-function renderEntries() {
-  const vDiv = document.getElementById("vaccinationList");
-  vDiv.innerHTML = "";
-  vaccinations.forEach((v,i) => {
-    vDiv.innerHTML += `
-      <div class="entry-group">
-        <input type="date" value="${v.date}" onchange="vaccinations[${i}].date=this.value; autoSave()"/>
-        <input type="text" placeholder="Produit" value="${v.produit}" onchange="vaccinations[${i}].produit=this.value; autoSave()"/>
-        <button class="delete-btn" onclick="deleteVaccination(${i})">❌ Supprimer</button>
-      </div>`;
-  });
-
-  const dDiv = document.getElementById("deparasitageList");
-  dDiv.innerHTML = "";
-  deparasitage.forEach((d,i) => {
-    dDiv.innerHTML += `
-      <div class="entry-group">
-        <input type="date" value="${d.date}" onchange="deparasitage[${i}].date=this.value; autoSave()"/>
-        <input type="text" placeholder="Produit" value="${d.produit}" onchange="deparasitage[${i}].produit=this.value; autoSave()"/>
-        <button class="delete-btn" onclick="deleteDeparasitage(${i})">❌ Supprimer</button>
-      </div>`;
-  });
-
-  const mDiv = document.getElementById("maladiesList");
-  mDiv.innerHTML = "";
-  maladies.forEach((m,i) => {
-    mDiv.innerHTML += `
-      <div class="entry-group">
-        <input type="date" value="${m.date}" onchange="maladies[${i}].date=this.value; autoSave()"/>
-        <input type="text" placeholder="Nom de la maladie" value="${m.nom}" onchange="maladies[${i}].nom=this.value; autoSave()"/>
-        <textarea placeholder="Notes" onchange="maladies[${i}].notes=this.value; autoSave()">${m.notes}</textarea>
-        <button class="delete-btn" onclick="deleteMaladie(${i})">❌ Supprimer</button>
-      </div>`;
-  });
-}
-
-// Auto-save to localStorage
-function autoSave() {
-  const data = {};
-  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-  data.photo = photoData;
-  data.vaccinations = vaccinations;
-  data.deparasitage = deparasitage;
-  data.maladies = maladies;
-  localStorage.setItem("dogData", JSON.stringify(data));
-  updateTable();
-}
 
 function formatDate(d) {
   if (!d) return "";
@@ -325,25 +193,57 @@ function formatDate(d) {
   return ('0'+dt.getDate()).slice(-2) + "/" + ('0'+(dt.getMonth()+1)).slice(-2) + "/" + dt.getFullYear();
 }
 
+function renderList(list, elementId, type) {
+  const div = document.getElementById(elementId);
+  div.innerHTML = "";
+  list.forEach((item, i) => {
+    div.innerHTML += `
+      <div class="entry-group">
+        <input type="date" value="${item.date}" onchange="${type}[${i}].date=this.value; autoSave()"/>
+        <input type="text" placeholder="Description" value="${item.nom}" onchange="${type}[${i}].nom=this.value; autoSave()"/>
+        <button class="delete-btn" onclick="${type}.splice(${i},1); renderEntries(); autoSave()">❌ Supprimer</button>
+      </div>`;
+  });
+}
+
+function renderEntries() {
+  renderList(vaccinations, "vaccinationList", "vaccinations");
+  renderList(deparasitage, "deparasitageList", "deparasitage");
+  renderList(maladies, "maladiesList", "maladies");
+  renderList(laboList, "laboList", "laboList");
+  renderList(rxList, "rxList", "rxList");
+  updateTable();
+}
+
+function autoSave() {
+  const data = {};
+  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
+  data.vaccinations = vaccinations;
+  data.deparasitage = deparasitage;
+  data.maladies = maladies;
+  data.laboList = laboList;
+  data.rxList = rxList;
+  localStorage.setItem("dogData", JSON.stringify(data));
+  updateTable();
+}
+
 function updateTable() {
   const tbody = document.querySelector("#dataTable tbody");
   tbody.innerHTML = "";
-  function addRow(label, value) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${label}</td><td>${value}</td>`;
-    tbody.appendChild(tr);
-  }
-
+  const addRow = (label, value) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${label}</td><td>${value}</td>`;
+    tbody.appendChild(row);
+  };
   fields.forEach(f => {
     const val = document.getElementById(f.id).value;
-    addRow(f.label, f.id === "birthDate" ? formatDate(val) : val);
+    addRow(f.label, f.id.includes("Date") ? formatDate(val) : val);
   });
-
-  vaccinations.forEach((v,i) => addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`));
-  deparasitage.forEach((d,i) => addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.produit}`));
-  maladies.forEach((m,i) => addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom} (${m.notes})`));
-
-  if (photoData) addRow("Photo", `<img src="${photoData}" style="max-width:100px">`);
+  vaccinations.forEach((v, i) => addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.nom}`));
+  deparasitage.forEach((d, i) => addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.nom}`));
+  maladies.forEach((m, i) => addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom}`));
+  laboList.forEach((l, i) => addRow(`Labo ${i+1}`, `${formatDate(l.date)} — ${l.nom}`));
+  rxList.forEach((r, i) => addRow(`Rx ${i+1}`, `${formatDate(r.date)} — ${r.nom}`));
 }
 
 function clearData() {
@@ -356,10 +256,11 @@ function clearData() {
 function exportJSON() {
   const data = {};
   fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-  data.photo = photoData;
   data.vaccinations = vaccinations;
   data.deparasitage = deparasitage;
   data.maladies = maladies;
+  data.laboList = laboList;
+  data.rxList = rxList;
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -379,20 +280,26 @@ function importJSON(event) {
       fields.forEach(f => {
         if (data[f.id] !== undefined) document.getElementById(f.id).value = data[f.id];
       });
-      photoData = data.photo || "";
-      if (photoData) document.getElementById("photoPreview").src = photoData;
       vaccinations = data.vaccinations || [];
       deparasitage = data.deparasitage || [];
       maladies = data.maladies || [];
+      laboList = data.laboList || [];
+      rxList = data.rxList || [];
       renderEntries();
       autoSave();
+      alert("✔ Import réussi avec succès !");
     } catch {
       alert("Erreur lors de l'import JSON.");
     }
   };
   reader.readAsText(file);
 }
-</script>
 
+function addVaccination() { vaccinations.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
+function addDeparasitage() { deparasitage.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
+function addMaladie() { maladies.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
+function addLabo() { laboList.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
+function addRx() { rxList.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
+</script>
 </body>
 </html>
