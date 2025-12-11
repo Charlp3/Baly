@@ -342,8 +342,10 @@ function updateTable() {
   }
 
   fields.forEach(f => {
-    addRow(f.label, document.getElementById(f.id).value);
-  });
+  const val = document.getElementById(f.id).value;
+  const isDateField = f.id === "birthDate";
+  addRow(f.label, isDateField ? formatDate(val) : val);
+});
 
   vaccinations.forEach((v,i) => {
     addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`);
