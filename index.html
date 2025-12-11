@@ -208,6 +208,7 @@ window.onload = () => {
     fields.forEach(f => {
       if (data[f.id]) document.getElementById(f.id).value = data[f.id];
     });
+    // Restore photo
     photoData = data.photo || "";
     if (photoData) document.getElementById("photoPreview").src = photoData;
     vaccinations = data.vaccinations || [];
@@ -237,7 +238,7 @@ document.getElementById('photoInput').addEventListener('change', function () {
   }
 });
 
-// Functions for dynamic entries
+// Dynamic entries logic (vaccinations, etc.)
 function addVaccination() {
   vaccinations.push({ date: "", produit: "" });
   renderEntries();
@@ -256,29 +257,25 @@ function addMaladie() {
   autoSave();
 }
 
-function deleteVaccination(index) {
-  vaccinations.splice(index, 1);
-  renderEntries();
-  autoSave();
+function deleteVaccination(i) {
+  vaccinations.splice(i,1);
+  renderEntries(); autoSave();
 }
 
-function deleteDeparasitage(index) {
-  deparasitage.splice(index, 1);
-  renderEntries();
-  autoSave();
+function deleteDeparasitage(i) {
+  deparasitage.splice(i,1);
+  renderEntries(); autoSave();
 }
 
-function deleteMaladie(index) {
-  maladies.splice(index, 1);
-  renderEntries();
-  autoSave();
+function deleteMaladie(i) {
+  maladies.splice(i,1);
+  renderEntries(); autoSave();
 }
 
-// Render dynamic lists
 function renderEntries() {
   const vDiv = document.getElementById("vaccinationList");
   vDiv.innerHTML = "";
-  vaccinations.forEach((v, i) => {
+  vaccinations.forEach((v,i) => {
     vDiv.innerHTML += `
       <div class="entry-group">
         <input type="date" value="${v.date}" onchange="vaccinations[${i}].date=this.value; autoSave()"/>
@@ -289,7 +286,7 @@ function renderEntries() {
 
   const dDiv = document.getElementById("deparasitageList");
   dDiv.innerHTML = "";
-  deparasitage.forEach((d, i) => {
+  deparasitage.forEach((d,i) => {
     dDiv.innerHTML += `
       <div class="entry-group">
         <input type="date" value="${d.date}" onchange="deparasitage[${i}].date=this.value; autoSave()"/>
@@ -300,7 +297,7 @@ function renderEntries() {
 
   const mDiv = document.getElementById("maladiesList");
   mDiv.innerHTML = "";
-  maladies.forEach((m, i) => {
+  maladies.forEach((m,i) => {
     mDiv.innerHTML += `
       <div class="entry-group">
         <input type="date" value="${m.date}" onchange="maladies[${i}].date=this.value; autoSave()"/>
@@ -311,7 +308,6 @@ function renderEntries() {
   });
 }
 
-// Auto-save everything
 function autoSave() {
   const data = {};
   fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
@@ -323,14 +319,12 @@ function autoSave() {
   updateTable();
 }
 
-// Pretty date format
 function formatDate(d) {
   if (!d) return "";
   const dt = new Date(d);
   return ('0'+dt.getDate()).slice(-2) + "/" + ('0'+(dt.getMonth()+1)).slice(-2) + "/" + dt.getFullYear();
 }
 
-// Update summary table
 function updateTable() {
   const tbody = document.querySelector("#dataTable tbody");
   tbody.innerHTML = "";
@@ -342,25 +336,17 @@ function updateTable() {
   }
 
   fields.forEach(f => {
-  const val = document.getElementById(f.id).value;
-  const isDateField = f.id === "birthDate";
-  addRow(f.label, isDateField ? formatDate(val) : val);
-});
+    const val = document.getElementById(f.id).value;
+    addRow(f.label, f.id==="birthDate"?formatDate(val):val);
+  });
 
-  vaccinations.forEach((v,i) => {
-    addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`);
-  });
-  deparasitage.forEach((d,i) => {
-    addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.produit}`);
-  });
-  maladies.forEach((m,i) => {
-    addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom} (${m.notes})`);
-  });
+  vaccinations.forEach((v,i) => addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`));
+  deparasitage.forEach((d,i) => addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.produit}`));
+  maladies.forEach((m,i) => addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom} (${m.notes})`));
 
   if (photoData) addRow("Photo", `<img src="${photoData}" style="max-width:100px">`);
 }
 
-// Clear all data
 function clearData() {
   if (confirm("Supprimer toutes les données ?")) {
     localStorage.removeItem("dogData");
@@ -368,7 +354,6 @@ function clearData() {
   }
 }
 
-// JSON export
 function exportJSON() {
   const data = {};
   fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
@@ -385,7 +370,6 @@ function exportJSON() {
   URL.revokeObjectURL(url);
 }
 
-// JSON import
 function importJSON(event) {
   const file = event.target.files[0];
   if (!file) return;
