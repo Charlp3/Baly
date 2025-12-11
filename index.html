@@ -49,6 +49,21 @@
       border: 2px solid #2C5E99;
       border-radius: 6px;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background-color: #f9fbff;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #587EA3;
+      text-align: left;
+    }
+    th {
+      background-color: #2C5E99;
+      color: white;
+    }
     footer {
       margin-top: 30px;
       text-align: center;
@@ -117,11 +132,22 @@
     <img id="photoPreview" class="photo-preview" src="" alt=""/>
 
     <div>
-      <button type="button" onclick="exportData()">💾 Exporter JSON</button>
+      <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
       <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"/>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)"/>
+      <button type="button" onclick="clearData()">🗑 Effacer les données</button>
     </div>
   </form>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Champ</th>
+        <th>Valeur</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <footer>© Pierre Charlier 2025 — Version 1.0</footer>
 
@@ -134,6 +160,25 @@
 
     let photoData = "";
 
+    window.onload = () => {
+      const saved = localStorage.getItem("dogData");
+      if (saved) {
+        const data = JSON.parse(saved);
+        fields.forEach(id => {
+          if (data[id]) document.getElementById(id).value = data[id];
+        });
+        if (data.photo) {
+          photoData = data.photo;
+          document.getElementById('photoPreview').src = data.photo;
+        }
+        updateTable(data);
+      }
+    };
+
+    fields.forEach(id => {
+      document.getElementById(id).addEventListener("input", autoSave);
+    });
+
     document.getElementById('photoInput').addEventListener('change', function () {
       const file = this.files[0];
       if (file) {
@@ -141,12 +186,64 @@
         reader.onload = function (e) {
           photoData = e.target.result;
           document.getElementById('photoPreview').src = photoData;
+          autoSave();
         };
         reader.readAsDataURL(file);
       }
     });
 
-    function exportData() {
+    function autoSave() {
+      const data = {};
+      fields.forEach(id => {
+        data[id] = document.getElementById(id).value;
+      });
+      data.photo = photoData;
+      localStorage.setItem("dogData", JSON.stringify(data));
+      updateTable(data);
+    }
+
+    function updateTable(data) {
+      const tbody = document.querySelector("#dataTable tbody");
+      tbody.innerHTML = "";
+
+      fields.forEach(id => {
+        const tr = document.createElement("tr");
+        const label = document.createElement("td");
+        label.textContent = document.querySelector(`label[for="${id}"]`)?.textContent || document.querySelector(`label[for=${id}]`)?.innerText || id;
+        const value = document.createElement("td");
+        value.textContent = data[id] || "";
+        tr.appendChild(label);
+        tr.appendChild(value);
+        tbody.appendChild(tr);
+      });
+
+      if (data.photo) {
+        const tr = document.createElement("tr");
+        const label = document.createElement("td");
+        label.textContent = "Photo";
+        const value = document.createElement("td");
+        const img = document.createElement("img");
+        img.src = data.photo;
+        img.style.maxWidth = "100px";
+        img.style.border = "1px solid #ccc";
+        value.appendChild(img);
+        tr.appendChild(label);
+        tr.appendChild(value);
+        tbody.appendChild(tr);
+      }
+    }
+
+    function clearData() {
+      if (confirm("Supprimer toutes les données ?")) {
+        localStorage.removeItem("dogData");
+        fields.forEach(id => document.getElementById(id).value = "");
+        photoData = "";
+        document.getElementById("photoPreview").src = "";
+        updateTable({});
+      }
+    }
+
+    function exportJSON() {
       const data = {};
       fields.forEach(id => {
         data[id] = document.getElementById(id).value;
@@ -163,7 +260,7 @@
       URL.revokeObjectURL(url);
     }
 
-    function importData(event) {
+    function importJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -180,6 +277,8 @@
             photoData = data.photo;
             document.getElementById('photoPreview').src = data.photo;
           }
+          localStorage.setItem("dogData", JSON.stringify(data));
+          updateTable(data);
         } catch (err) {
           alert("Erreur de chargement du fichier JSON.");
         }
