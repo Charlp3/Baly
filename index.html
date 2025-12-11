@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fiche Chien - Pierre Charlier 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #D0E4F7;
+      color: #1C2A40;
+      padding: 20px;
+    }
+    h1 {
+      background-color: #2C5E99;
+      color: white;
+      padding: 12px;
+      text-align: center;
+      border-radius: 8px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #587EA3;
+      background-color: #F0F8FF;
+    }
+    button {
+      background-color: #2C5E99;
+      color: white;
+      padding: 10px 15px;
+      margin: 10px 5px 0 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #20446E;
+    }
+    .photo-preview {
+      max-width: 200px;
+      margin-top: 10px;
+      border: 2px solid #2C5E99;
+      border-radius: 6px;
+    }
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #1C2A40;
+      border-top: 1px solid #587EA3;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Contrôle de mon chien 🐾</h1>
+
+  <form id="dogForm">
+    <label>Nº Puce</label>
+    <input type="text" id="chipId"/>
+
+    <label>Nº Passeport</label>
+    <input type="text" id="passportId"/>
+
+    <label>Date de naissance</label>
+    <input type="date" id="birthDate"/>
+
+    <label>Poids (kg)</label>
+    <input type="number" id="weight" step="0.1"/>
+
+    <label>Vaccinations</label>
+    <textarea id="vaccinations"></textarea>
+
+    <label>Déparasitages</label>
+    <textarea id="deparasitage"></textarea>
+
+    <label>Maladies</label>
+    <textarea id="maladies"></textarea>
+
+    <label>Accidents</label>
+    <textarea id="accidents"></textarea>
+
+    <label>Labo</label>
+    <textarea id="labo"></textarea>
+
+    <label>Rx</label>
+    <textarea id="rx"></textarea>
+
+    <label>Véto / confrères</label>
+    <input type="text" id="veto"/>
+
+    <label>Téléphone</label>
+    <input type="tel" id="tel"/>
+
+    <label>Clinique / Cabinet</label>
+    <input type="text" id="clinic"/>
+
+    <label>Nourriture</label>
+    <textarea id="nourriture"></textarea>
+
+    <label>Accessoires</label>
+    <textarea id="accessoires"></textarea>
+
+    <label>Autres</label>
+    <textarea id="autres"></textarea>
+
+    <label>Photo du chien</label>
+    <input type="file" id="photoInput" accept="image/*"/>
+    <img id="photoPreview" class="photo-preview" src="" alt=""/>
+
+    <div>
+      <button type="button" onclick="exportData()">💾 Exporter JSON</button>
+      <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"/>
+    </div>
+  </form>
+
+  <footer>© Pierre Charlier 2025 — Version 1.0</footer>
+
+  <script>
+    const fields = [
+      "chipId", "passportId", "birthDate", "weight", "vaccinations", "deparasitage",
+      "maladies", "accidents", "labo", "rx", "veto", "tel", "clinic",
+      "nourriture", "accessoires", "autres"
+    ];
+
+    let photoData = "";
+
+    document.getElementById('photoInput').addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          photoData = e.target.result;
+          document.getElementById('photoPreview').src = photoData;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function exportData() {
+      const data = {};
+      fields.forEach(id => {
+        data[id] = document.getElementById(id).value;
+      });
+      data.photo = photoData;
+
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "mon_chien.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          fields.forEach(id => {
+            if (data[id] !== undefined) {
+              document.getElementById(id).value = data[id];
+            }
+          });
+          if (data.photo) {
+            photoData = data.photo;
+            document.getElementById('photoPreview').src = data.photo;
+          }
+        } catch (err) {
+          alert("Erreur de chargement du fichier JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
