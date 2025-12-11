@@ -23,7 +23,7 @@
       display: block;
       margin-top: 10px;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 8px;
       margin-top: 4px;
@@ -34,7 +34,7 @@
     button {
       background-color: #2C5E99;
       color: white;
-      padding: 10px 15px;
+      padding: 8px 12px;
       margin: 10px 5px 0 0;
       border: none;
       border-radius: 4px;
@@ -72,6 +72,13 @@
       border-top: 1px solid #587EA3;
       padding-top: 10px;
     }
+    .entry-group {
+      border: 1px solid #bbb;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #EAF2FB;
+    }
   </style>
 </head>
 <body>
@@ -91,15 +98,22 @@
     <label>Poids (kg)</label>
     <input type="number" id="weight" step="0.1"/>
 
+    <!-- VACCINATIONS -->
     <label>Vaccinations</label>
-    <textarea id="vaccinations"></textarea>
+    <div id="vaccinationList"></div>
+    <button type="button" onclick="addVaccination()">+ Ajouter vaccination</button>
 
+    <!-- DEPARASITAGE -->
     <label>Déparasitages</label>
-    <textarea id="deparasitage"></textarea>
+    <div id="deparasitageList"></div>
+    <button type="button" onclick="addDeparasitage()">+ Ajouter déparasitage</button>
 
+    <!-- MALADIES -->
     <label>Maladies</label>
-    <textarea id="maladies"></textarea>
+    <div id="maladiesList"></div>
+    <button type="button" onclick="addMaladie()">+ Ajouter maladie</button>
 
+    <!-- AUTRES INFOS -->
     <label>Accidents</label>
     <textarea id="accidents"></textarea>
 
@@ -127,10 +141,12 @@
     <label>Autres</label>
     <textarea id="autres"></textarea>
 
+    <!-- PHOTO -->
     <label>Photo du chien</label>
     <input type="file" id="photoInput" accept="image/*"/>
     <img id="photoPreview" class="photo-preview" src="" alt=""/>
 
+    <!-- BOUTONS -->
     <div>
       <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
       <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
@@ -139,26 +155,26 @@
     </div>
   </form>
 
+  <!-- TABLEAU RÉCAP -->
   <table id="dataTable">
     <thead>
-      <tr>
-        <th>Champ</th>
-        <th>Valeur</th>
-      </tr>
+      <tr><th>Champ</th><th>Valeur</th></tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <footer>© Pierre Charlier 2025 — Version 1.0</footer>
+  <footer>© Pierre Charlier 2025 — Version 1.1</footer>
 
   <script>
     const fields = [
-      "chipId", "passportId", "birthDate", "weight", "vaccinations", "deparasitage",
-      "maladies", "accidents", "labo", "rx", "veto", "tel", "clinic",
-      "nourriture", "accessoires", "autres"
+      "chipId", "passportId", "birthDate", "weight", "accidents", "labo",
+      "rx", "veto", "tel", "clinic", "nourriture", "accessoires", "autres"
     ];
 
     let photoData = "";
+    let vaccinations = [];
+    let deparasitage = [];
+    let maladies = [];
 
     window.onload = () => {
       const saved = localStorage.getItem("dogData");
@@ -167,11 +183,13 @@
         fields.forEach(id => {
           if (data[id]) document.getElementById(id).value = data[id];
         });
-        if (data.photo) {
-          photoData = data.photo;
-          document.getElementById('photoPreview').src = data.photo;
-        }
-        updateTable(data);
+        photoData = data.photo || "";
+        if (photoData) document.getElementById("photoPreview").src = photoData;
+        vaccinations = data.vaccinations || [];
+        deparasitage = data.deparasitage || [];
+        maladies = data.maladies || [];
+        renderEntries();
+        updateTable();
       }
     };
 
@@ -192,66 +210,115 @@
       }
     });
 
-    function autoSave() {
-      const data = {};
-      fields.forEach(id => {
-        data[id] = document.getElementById(id).value;
-      });
-      data.photo = photoData;
-      localStorage.setItem("dogData", JSON.stringify(data));
-      updateTable(data);
+    function addVaccination() {
+      vaccinations.push({ date: "", produit: "" });
+      renderEntries();
+      autoSave();
     }
 
-    function updateTable(data) {
+    function addDeparasitage() {
+      deparasitage.push({ date: "", produit: "" });
+      renderEntries();
+      autoSave();
+    }
+
+    function addMaladie() {
+      maladies.push({ date: "", nom: "", notes: "" });
+      renderEntries();
+      autoSave();
+    }
+
+    function renderEntries() {
+      const vDiv = document.getElementById("vaccinationList");
+      vDiv.innerHTML = "";
+      vaccinations.forEach((v, i) => {
+        vDiv.innerHTML += `
+          <div class="entry-group">
+            <input type="date" value="${v.date}" onchange="vaccinations[${i}].date=this.value; autoSave()"/>
+            <input type="text" placeholder="Produit" value="${v.produit}" onchange="vaccinations[${i}].produit=this.value; autoSave()"/>
+          </div>`;
+      });
+
+      const dDiv = document.getElementById("deparasitageList");
+      dDiv.innerHTML = "";
+      deparasitage.forEach((d, i) => {
+        dDiv.innerHTML += `
+          <div class="entry-group">
+            <input type="date" value="${d.date}" onchange="deparasitage[${i}].date=this.value; autoSave()"/>
+            <input type="text" placeholder="Produit" value="${d.produit}" onchange="deparasitage[${i}].produit=this.value; autoSave()"/>
+          </div>`;
+      });
+
+      const mDiv = document.getElementById("maladiesList");
+      mDiv.innerHTML = "";
+      maladies.forEach((m, i) => {
+        mDiv.innerHTML += `
+          <div class="entry-group">
+            <input type="date" value="${m.date}" onchange="maladies[${i}].date=this.value; autoSave()"/>
+            <input type="text" placeholder="Nom" value="${m.nom}" onchange="maladies[${i}].nom=this.value; autoSave()"/>
+            <textarea placeholder="Notes" onchange="maladies[${i}].notes=this.value">${m.notes}</textarea>
+          </div>`;
+      });
+    }
+
+    function autoSave() {
+      const data = {};
+      fields.forEach(id => data[id] = document.getElementById(id).value);
+      data.photo = photoData;
+      data.vaccinations = vaccinations;
+      data.deparasitage = deparasitage;
+      data.maladies = maladies;
+      localStorage.setItem("dogData", JSON.stringify(data));
+      updateTable();
+    }
+
+    function updateTable() {
       const tbody = document.querySelector("#dataTable tbody");
       tbody.innerHTML = "";
 
-      fields.forEach(id => {
+      function addRow(label, value) {
         const tr = document.createElement("tr");
-        const label = document.createElement("td");
-        label.textContent = document.querySelector(`label[for="${id}"]`)?.textContent || document.querySelector(`label[for=${id}]`)?.innerText || id;
-        const value = document.createElement("td");
-        value.textContent = data[id] || "";
-        tr.appendChild(label);
-        tr.appendChild(value);
+        tr.innerHTML = `<td>${label}</td><td>${value}</td>`;
         tbody.appendChild(tr);
+      }
+
+      fields.forEach(id => {
+        const label = document.querySelector(`label[for=${id}]`)?.textContent || id;
+        const value = document.getElementById(id).value;
+        addRow(label, value);
       });
 
-      if (data.photo) {
-        const tr = document.createElement("tr");
-        const label = document.createElement("td");
-        label.textContent = "Photo";
-        const value = document.createElement("td");
-        const img = document.createElement("img");
-        img.src = data.photo;
-        img.style.maxWidth = "100px";
-        img.style.border = "1px solid #ccc";
-        value.appendChild(img);
-        tr.appendChild(label);
-        tr.appendChild(value);
-        tbody.appendChild(tr);
+      vaccinations.forEach(v => {
+        addRow("Vaccination", `${v.date} : ${v.produit}`);
+      });
+      deparasitage.forEach(d => {
+        addRow("Déparasitage", `${d.date} : ${d.produit}`);
+      });
+      maladies.forEach(m => {
+        addRow("Maladie", `${m.date} : ${m.nom}<br>${m.notes}`);
+      });
+
+      if (photoData) {
+        const img = `<img src="${photoData}" style="max-width:100px"/>`;
+        addRow("Photo", img);
       }
     }
 
     function clearData() {
       if (confirm("Supprimer toutes les données ?")) {
         localStorage.removeItem("dogData");
-        fields.forEach(id => document.getElementById(id).value = "");
-        photoData = "";
-        document.getElementById("photoPreview").src = "";
-        updateTable({});
+        location.reload();
       }
     }
 
     function exportJSON() {
       const data = {};
-      fields.forEach(id => {
-        data[id] = document.getElementById(id).value;
-      });
+      fields.forEach(id => data[id] = document.getElementById(id).value);
       data.photo = photoData;
-
-      const jsonStr = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
+      data.vaccinations = vaccinations;
+      data.deparasitage = deparasitage;
+      data.maladies = maladies;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -263,24 +330,22 @@
     function importJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
           const data = JSON.parse(e.target.result);
           fields.forEach(id => {
-            if (data[id] !== undefined) {
-              document.getElementById(id).value = data[id];
-            }
+            if (data[id] !== undefined) document.getElementById(id).value = data[id];
           });
-          if (data.photo) {
-            photoData = data.photo;
-            document.getElementById('photoPreview').src = data.photo;
-          }
-          localStorage.setItem("dogData", JSON.stringify(data));
-          updateTable(data);
-        } catch (err) {
-          alert("Erreur de chargement du fichier JSON.");
+          photoData = data.photo || "";
+          if (photoData) document.getElementById("photoPreview").src = photoData;
+          vaccinations = data.vaccinations || [];
+          deparasitage = data.deparasitage || [];
+          maladies = data.maladies || [];
+          renderEntries();
+          autoSave();
+        } catch (e) {
+          alert("Erreur lors de l'import.");
         }
       };
       reader.readAsText(file);
