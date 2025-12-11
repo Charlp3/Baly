@@ -24,7 +24,7 @@
       margin-top: 10px;
       font-size: 1.1rem;
     }
-    input, textarea, select {
+    input, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -36,8 +36,8 @@
     button {
       background-color: #2C5E99;
       color: white;
-      padding: 10px 14px;
-      margin: 10px 6px 0 0;
+      padding: 8px 12px;
+      margin: 8px 6px 0 0;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -83,290 +83,331 @@
       margin-top: 10px;
       background-color: #EAF2FB;
     }
+    .delete-btn {
+      background-color: #c33;
+      color: white;
+      font-size: 0.95rem;
+      margin-top: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+    .delete-btn:hover {
+      background-color: #a00;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Contrôle de mon chien 🐾</h1>
+<h1>Contrôle de mon chien 🐾</h1>
 
-  <form id="dogForm">
-    <label>Nº Puce</label>
-    <input type="text" id="chipId"/>
+<form id="dogForm">
 
-    <label>Nº Passeport</label>
-    <input type="text" id="passportId"/>
+  <label>Nº Puce</label>
+  <input type="text" id="chipId"/>
 
-    <label>Date de naissance</label>
-    <input type="date" id="birthDate"/>
+  <label>Nº Passeport</label>
+  <input type="text" id="passportId"/>
 
-    <label>Poids (kg)</label>
-    <input type="number" id="weight" step="0.1"/>
+  <label>Date de naissance</label>
+  <input type="date" id="birthDate"/>
 
-    <!-- VACCINATIONS -->
-    <label>Vaccinations (date + produit)</label>
-    <div id="vaccinationList"></div>
-    <button type="button" onclick="addVaccination()">+ Ajouter vaccination</button>
+  <label>Poids (kg)</label>
+  <input type="number" id="weight" step="0.1"/>
 
-    <!-- DÉPARASITAGES -->
-    <label>Déparasitage (date + produit)</label>
-    <div id="deparasitageList"></div>
-    <button type="button" onclick="addDeparasitage()">+ Ajouter déparasitage</button>
+  <!-- VACCINATIONS -->
+  <label>Vaccinations (date + produit)</label>
+  <div id="vaccinationList"></div>
+  <button type="button" onclick="addVaccination()">+ Ajouter vaccination</button>
 
-    <!-- MALADIES -->
-    <label>Maladies (date + nom + notes)</label>
-    <div id="maladiesList"></div>
-    <button type="button" onclick="addMaladie()">+ Ajouter maladie</button>
+  <!-- DÉPARASITAGES -->
+  <label>Déparasitage (date + produit)</label>
+  <div id="deparasitageList"></div>
+  <button type="button" onclick="addDeparasitage()">+ Ajouter déparasitage</button>
 
-    <!-- AUTRES INFOS -->
-    <label>Accidents</label>
-    <textarea id="accidents"></textarea>
+  <!-- MALADIES -->
+  <label>Maladies (date + nom + notes)</label>
+  <div id="maladiesList"></div>
+  <button type="button" onclick="addMaladie()">+ Ajouter maladie</button>
 
-    <label>Laboratoire (Labo)</label>
-    <textarea id="labo"></textarea>
+  <label>Accidents</label>
+  <textarea id="accidents"></textarea>
 
-    <label>Radiographies (Rx)</label>
-    <textarea id="rx"></textarea>
+  <label>Laboratoire (Labo)</label>
+  <textarea id="labo"></textarea>
 
-    <label>Véto / Confrères</label>
-    <input type="text" id="veto"/>
+  <label>Radiographies (Rx)</label>
+  <textarea id="rx"></textarea>
 
-    <label>Téléphone</label>
-    <input type="tel" id="tel"/>
+  <label>Véto / Confrères</label>
+  <input type="text" id="veto"/>
 
-    <label>Clinique / Cabinet</label>
-    <input type="text" id="clinic"/>
+  <label>Téléphone</label>
+  <input type="tel" id="tel"/>
 
-    <label>Nourriture</label>
-    <textarea id="nourriture"></textarea>
+  <label>Clinique / Cabinet</label>
+  <input type="text" id="clinic"/>
 
-    <label>Accessoires</label>
-    <textarea id="accessoires"></textarea>
+  <label>Nourriture</label>
+  <textarea id="nourriture"></textarea>
 
-    <label>Autres</label>
-    <textarea id="autres"></textarea>
+  <label>Accessoires</label>
+  <textarea id="accessoires"></textarea>
 
-    <!-- PHOTO -->
-    <label>Photo du chien</label>
-    <input type="file" id="photoInput" accept="image/*"/>
-    <img id="photoPreview" class="photo-preview" src="" alt=""/>
+  <label>Autres</label>
+  <textarea id="autres"></textarea>
 
-    <!-- BOUTONS -->
-    <div>
-      <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
-      <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)"/>
-      <button type="button" onclick="clearData()">🗑 Effacer les données</button>
-    </div>
-  </form>
+  <label>Photo du chien</label>
+  <input type="file" id="photoInput" accept="image/*"/>
+  <img id="photoPreview" class="photo-preview" src="" alt=""/>
 
-  <!-- TABLEAU RÉCAP -->
-  <table id="dataTable">
-    <thead>
-      <tr><th>Champ</th><th>Valeur</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div>
+    <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
+    <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)"/>
+    <button type="button" onclick="clearData()">🗑 Effacer les données</button>
+  </div>
 
-  <footer>© Pierre Charlier 2025 — Version 1.2</footer>
+</form>
 
-  <script>
-    const fields = [
-      { id: "chipId", label: "Nº Puce" },
-      { id: "passportId", label: "Nº Passeport" },
-      { id: "birthDate", label: "Date de naissance" },
-      { id: "weight", label: "Poids (kg)" },
-      { id: "accidents", label: "Accidents" },
-      { id: "labo", label: "Laboratoire (Labo)" },
-      { id: "rx", label: "Radiographies (Rx)" },
-      { id: "veto", label: "Véto / Confrères" },
-      { id: "tel", label: "Téléphone" },
-      { id: "clinic", label: "Clinique / Cabinet" },
-      { id: "nourriture", label: "Nourriture" },
-      { id: "accessoires", label: "Accessoires" },
-      { id: "autres", label: "Autres" }
-    ];
+<table id="dataTable">
+  <thead>
+    <tr><th>Champ</th><th>Valeur</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    let photoData = "";
-    let vaccinations = [];
-    let deparasitage = [];
-    let maladies = [];
+<footer>© Pierre Charlier 2025 — Version 1.3</footer>
 
-    window.onload = () => {
-      const saved = localStorage.getItem("dogData");
-      if (saved) {
-        const data = JSON.parse(saved);
-        fields.forEach(f => {
-          if (data[f.id]) document.getElementById(f.id).value = data[f.id];
-        });
-        photoData = data.photo || "";
-        if (photoData) document.getElementById("photoPreview").src = photoData;
-        vaccinations = data.vaccinations || [];
-        deparasitage = data.deparasitage || [];
-        maladies = data.maladies || [];
-        renderEntries();
-        updateTable();
-      }
-    };
+<script>
+const fields = [
+  { id: "chipId", label: "Nº Puce" },
+  { id: "passportId", label: "Nº Passeport" },
+  { id: "birthDate", label: "Date de naissance" },
+  { id: "weight", label: "Poids (kg)" },
+  { id: "accidents", label: "Accidents" },
+  { id: "labo", label: "Laboratoire (Labo)" },
+  { id: "rx", label: "Radiographies (Rx)" },
+  { id: "veto", label: "Véto / Confrères" },
+  { id: "tel", label: "Téléphone" },
+  { id: "clinic", label: "Clinique / Cabinet" },
+  { id: "nourriture", label: "Nourriture" },
+  { id: "accessoires", label: "Accessoires" },
+  { id: "autres", label: "Autres" }
+];
 
+let photoData = "";
+let vaccinations = [];
+let deparasitage = [];
+let maladies = [];
+
+// Load saved data
+window.onload = () => {
+  const saved = localStorage.getItem("dogData");
+  if (saved) {
+    const data = JSON.parse(saved);
     fields.forEach(f => {
-      document.getElementById(f.id).addEventListener("input", autoSave);
+      if (data[f.id]) document.getElementById(f.id).value = data[f.id];
     });
+    photoData = data.photo || "";
+    if (photoData) document.getElementById("photoPreview").src = photoData;
+    vaccinations = data.vaccinations || [];
+    deparasitage = data.deparasitage || [];
+    maladies = data.maladies || [];
+    renderEntries();
+    updateTable();
+  }
+};
 
-    document.getElementById('photoInput').addEventListener('change', function () {
-      const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          photoData = e.target.result;
-          document.getElementById('photoPreview').src = photoData;
-          autoSave();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+// Auto-save basic fields
+fields.forEach(f => {
+  document.getElementById(f.id).addEventListener("input", autoSave);
+});
 
-    function addVaccination() {
-      vaccinations.push({date: "", produit: ""});
-      renderEntries();
+// Photo handling
+document.getElementById('photoInput').addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      photoData = e.target.result;
+      document.getElementById('photoPreview').src = photoData;
       autoSave();
-    }
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
-    function addDeparasitage() {
-      deparasitage.push({date: "", produit: ""});
-      renderEntries();
-      autoSave();
-    }
+// Functions for dynamic entries
+function addVaccination() {
+  vaccinations.push({ date: "", produit: "" });
+  renderEntries();
+  autoSave();
+}
 
-    function addMaladie() {
-      maladies.push({date: "", nom: "", notes: ""});
-      renderEntries();
-      autoSave();
-    }
+function addDeparasitage() {
+  deparasitage.push({ date: "", produit: "" });
+  renderEntries();
+  autoSave();
+}
 
-    function renderEntries() {
-      const vDiv = document.getElementById("vaccinationList");
-      vDiv.innerHTML = "";
-      vaccinations.forEach((v, i) => {
-        vDiv.innerHTML += `
-          <div class="entry-group">
-            <input type="date" value="${v.date}" onchange="vaccinations[${i}].date=this.value; autoSave()"/>
-            <input type="text" placeholder="Produit" value="${v.produit}" onchange="vaccinations[${i}].produit=this.value; autoSave()"/>
-          </div>`;
-      });
+function addMaladie() {
+  maladies.push({ date: "", nom: "", notes: "" });
+  renderEntries();
+  autoSave();
+}
 
-      const dDiv = document.getElementById("deparasitageList");
-      dDiv.innerHTML = "";
-      deparasitage.forEach((d, i) => {
-        dDiv.innerHTML += `
-          <div class="entry-group">
-            <input type="date" value="${d.date}" onchange="deparasitage[${i}].date=this.value; autoSave()"/>
-            <input type="text" placeholder="Produit" value="${d.produit}" onchange="deparasitage[${i}].produit=this.value; autoSave()"/>
-          </div>`;
-      });
+function deleteVaccination(index) {
+  vaccinations.splice(index, 1);
+  renderEntries();
+  autoSave();
+}
 
-      const mDiv = document.getElementById("maladiesList");
-      mDiv.innerHTML = "";
-      maladies.forEach((m, i) => {
-        mDiv.innerHTML += `
-          <div class="entry-group">
-            <input type="date" value="${m.date}" onchange="maladies[${i}].date=this.value; autoSave()"/>
-            <input type="text" placeholder="Nom de la maladie" value="${m.nom}" onchange="maladies[${i}].nom=this.value; autoSave()"/>
-            <textarea placeholder="Notes" onchange="maladies[${i}].notes=this.value; autoSave()">${m.notes}</textarea>
-          </div>`;
-      });
-    }
+function deleteDeparasitage(index) {
+  deparasitage.splice(index, 1);
+  renderEntries();
+  autoSave();
+}
 
-    function autoSave() {
-      const data = {};
-      fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-      data.photo = photoData;
-      data.vaccinations = vaccinations;
-      data.deparasitage = deparasitage;
-      data.maladies = maladies;
-      localStorage.setItem("dogData", JSON.stringify(data));
-      updateTable();
-    }
+function deleteMaladie(index) {
+  maladies.splice(index, 1);
+  renderEntries();
+  autoSave();
+}
 
-    function formatDate(d) {
-      if (!d) return "";
-      const dt = new Date(d);
-      return ('0'+dt.getDate()).slice(-2) + "/" + ('0'+(dt.getMonth()+1)).slice(-2) + "/" + dt.getFullYear();
-    }
+// Render dynamic lists
+function renderEntries() {
+  const vDiv = document.getElementById("vaccinationList");
+  vDiv.innerHTML = "";
+  vaccinations.forEach((v, i) => {
+    vDiv.innerHTML += `
+      <div class="entry-group">
+        <input type="date" value="${v.date}" onchange="vaccinations[${i}].date=this.value; autoSave()"/>
+        <input type="text" placeholder="Produit" value="${v.produit}" onchange="vaccinations[${i}].produit=this.value; autoSave()"/>
+        <button class="delete-btn" onclick="deleteVaccination(${i})">❌ Supprimer</button>
+      </div>`;
+  });
 
-    function updateTable() {
-      const tbody = document.querySelector("#dataTable tbody");
-      tbody.innerHTML = "";
+  const dDiv = document.getElementById("deparasitageList");
+  dDiv.innerHTML = "";
+  deparasitage.forEach((d, i) => {
+    dDiv.innerHTML += `
+      <div class="entry-group">
+        <input type="date" value="${d.date}" onchange="deparasitage[${i}].date=this.value; autoSave()"/>
+        <input type="text" placeholder="Produit" value="${d.produit}" onchange="deparasitage[${i}].produit=this.value; autoSave()"/>
+        <button class="delete-btn" onclick="deleteDeparasitage(${i})">❌ Supprimer</button>
+      </div>`;
+  });
 
-      function addRow(label, value) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${label}</td><td>${value}</td>`;
-        tbody.appendChild(tr);
-      }
+  const mDiv = document.getElementById("maladiesList");
+  mDiv.innerHTML = "";
+  maladies.forEach((m, i) => {
+    mDiv.innerHTML += `
+      <div class="entry-group">
+        <input type="date" value="${m.date}" onchange="maladies[${i}].date=this.value; autoSave()"/>
+        <input type="text" placeholder="Nom de la maladie" value="${m.nom}" onchange="maladies[${i}].nom=this.value; autoSave()"/>
+        <textarea placeholder="Notes" onchange="maladies[${i}].notes=this.value; autoSave()">${m.notes}</textarea>
+        <button class="delete-btn" onclick="deleteMaladie(${i})">❌ Supprimer</button>
+      </div>`;
+  });
+}
 
+// Auto-save everything
+function autoSave() {
+  const data = {};
+  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
+  data.photo = photoData;
+  data.vaccinations = vaccinations;
+  data.deparasitage = deparasitage;
+  data.maladies = maladies;
+  localStorage.setItem("dogData", JSON.stringify(data));
+  updateTable();
+}
+
+// Pretty date format
+function formatDate(d) {
+  if (!d) return "";
+  const dt = new Date(d);
+  return ('0'+dt.getDate()).slice(-2) + "/" + ('0'+(dt.getMonth()+1)).slice(-2) + "/" + dt.getFullYear();
+}
+
+// Update summary table
+function updateTable() {
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
+
+  function addRow(label, value) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${label}</td><td>${value}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  fields.forEach(f => {
+    addRow(f.label, document.getElementById(f.id).value);
+  });
+
+  vaccinations.forEach((v,i) => {
+    addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`);
+  });
+  deparasitage.forEach((d,i) => {
+    addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.produit}`);
+  });
+  maladies.forEach((m,i) => {
+    addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom} (${m.notes})`);
+  });
+
+  if (photoData) addRow("Photo", `<img src="${photoData}" style="max-width:100px">`);
+}
+
+// Clear all data
+function clearData() {
+  if (confirm("Supprimer toutes les données ?")) {
+    localStorage.removeItem("dogData");
+    location.reload();
+  }
+}
+
+// JSON export
+function exportJSON() {
+  const data = {};
+  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
+  data.photo = photoData;
+  data.vaccinations = vaccinations;
+  data.deparasitage = deparasitage;
+  data.maladies = maladies;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "chien_sauvegarde.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+// JSON import
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
       fields.forEach(f => {
-        addRow(f.label, document.getElementById(f.id).value);
+        if (data[f.id] !== undefined) document.getElementById(f.id).value = data[f.id];
       });
-
-      vaccinations.forEach((v,i) => {
-        addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.produit}`);
-      });
-      deparasitage.forEach((d,i) => {
-        addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.produit}`);
-      });
-      maladies.forEach((m,i) => {
-        addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom} (${m.notes})`);
-      });
-
-      if (photoData) addRow("Photo", `<img src="${photoData}" style="max-width:100px">`);
+      photoData = data.photo || "";
+      if (photoData) document.getElementById("photoPreview").src = photoData;
+      vaccinations = data.vaccinations || [];
+      deparasitage = data.deparasitage || [];
+      maladies = data.maladies || [];
+      renderEntries();
+      autoSave();
+    } catch {
+      alert("Erreur lors de l'import JSON.");
     }
-
-    function clearData() {
-      if (confirm("Supprimer toutes les données ?")) {
-        localStorage.removeItem("dogData");
-        location.reload();
-      }
-    }
-
-    function exportJSON() {
-      const data = {};
-      fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-      data.photo = photoData;
-      data.vaccinations = vaccinations;
-      data.deparasitage = deparasitage;
-      data.maladies = maladies;
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "chien_sauvegarde.json";
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          fields.forEach(f => {
-            if (data[f.id] !== undefined) document.getElementById(f.id).value = data[f.id];
-          });
-          photoData = data.photo || "";
-          if (photoData) document.getElementById("photoPreview").src = photoData;
-          vaccinations = data.vaccinations || [];
-          deparasitage = data.deparasitage || [];
-          maladies = data.maladies || [];
-          renderEntries();
-          autoSave();
-        } catch {
-          alert("Erreur lors de l'import JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-  </script>
+  };
+  reader.readAsText(file);
+}
+</script>
 
 </body>
 </html>
