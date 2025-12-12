@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Suivi Chien – v1.8 (Liens)</title>
+  <title>Suivi Chien – v1.7 (Liens)</title>
   <style>
     body { font-family: Arial; margin: 0; background: #D0E4F7; color: #1C2A40; }
-    header { background: #2C5E99; color: #fff; text-align: center; padding: 15px; position: relative; }
+    header { background: #2C5E99; color: #fff; text-align: center; padding: 15px; }
     nav { display: flex; background: #1C3B68; flex-wrap: wrap; }
     nav button {
       flex: 1 1 25%; padding: 12px; background: #1C3B68; color: white;
@@ -32,170 +32,209 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    button.action:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .header-actions {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      display: flex;
-      gap: 6px;
-    }
   </style>
 </head>
-
 <body>
+  <header>
+    Suivi de mon chien 🐾<br />
+    <small>© Pierre Charlier 2025 — Version 1.7 (Liens)</small>
+  </header>
 
-<header>
-  Suivi de mon chien 🐾<br />
-  <small>© Pierre Charlier 2025 — Version 1.8</small>
+  <nav>
+    <button onclick="showTab('fiche')" class="active">Fiche</button>
+    <button onclick="showTab('medicaments')">Médicaments</button>
+    <button onclick="showTab('vaccins')">Vaccins</button>
+    <button onclick="showTab('notices')">Notices</button>
+    <button onclick="showTab('pdf')">Passeport PDF</button>
+    <button onclick="showTab('liens')">Liens Web</button>
+  </nav>
 
-  <div class="header-actions">
-    <button id="lockBtn" class="action" onclick="toggleLock()">🔒 Verrouillé</button>
-    <button id="restoreBtn" class="action" onclick="document.getElementById('importJson').click()">♻️ Restaurer</button>
-    <input type="file" id="importJson" accept=".json" hidden>
-  </div>
-</header>
+  <main>
+    <section id="fiche" class="active">
+      <label for="puce">Numéro de puce</label>
+      <input type="text" id="puce">
+      <label for="passeport">Numéro de passeport</label>
+      <input type="text" id="passeport">
+      <label for="naissance">Date de naissance</label>
+      <input type="date" id="naissance" onchange="updateAge()">
+      <div><strong>Âge :</strong> <span id="age">-</span></div>
+      <label for="poids">Poids (kg)</label>
+      <input type="number" id="poids">
+      <label for="veto">Vétérinaire</label>
+      <input type="text" id="veto">
+      <label for="tel">Téléphone</label>
+      <input type="tel" id="tel">
+      <label for="clinique">Clinique</label>
+      <input type="text" id="clinique">
+      <label for="nourriture">Nourriture</label>
+      <textarea id="nourriture"></textarea>
+      <label for="accessoires">Accessoires</label>
+      <textarea id="accessoires"></textarea>
+      <label for="autres">Autres</label>
+      <textarea id="autres"></textarea>
+      <button class="action" onclick="saveData()">💾 Sauvegarder</button>
 
-<nav>
-  <button onclick="showTab('fiche')" class="active">Fiche</button>
-  <button onclick="showTab('medicaments')">Médicaments</button>
-  <button onclick="showTab('vaccins')">Vaccins</button>
-  <button onclick="showTab('notices')">Notices</button>
-  <button onclick="showTab('pdf')">Passeport PDF</button>
-  <button onclick="showTab('liens')">Liens Web</button>
-</nav>
+<input type="file" id="importInput" accept="application/json"
+       style="display:none" onchange="importData(event)">
 
-<main>
+<button class="action"
+        onclick="document.getElementById('importInput').click()">
+  📥 Importer
+</button>
+    </section>
 
-<section id="fiche" class="active">
-  <label>Numéro de puce</label><input id="puce">
-  <label>Numéro de passeport</label><input id="passeport">
-  <label>Date de naissance</label><input type="date" id="naissance" onchange="updateAge()">
-  <div><strong>Âge :</strong> <span id="age">-</span></div>
-  <label>Poids (kg)</label><input type="number" id="poids">
-  <label>Vétérinaire</label><input id="veto">
-  <label>Téléphone</label><input id="tel">
-  <label>Clinique</label><input id="clinique">
-  <label>Nourriture</label><textarea id="nourriture"></textarea>
-  <label>Accessoires</label><textarea id="accessoires"></textarea>
-  <label>Autres</label><textarea id="autres"></textarea>
-  <button id="saveBtn" class="action" onclick="saveData()">💾 Sauvegarder</button>
-</section>
+    <section id="medicaments">
+      <h3>Médicaments</h3>
+      <div id="listeMeds"></div>
+      <button class="action" onclick="ajouterMedicament()">+ Ajouter Médicament</button>
+    </section>
 
-<section id="medicaments">
-  <h3>Médicaments</h3>
-  <div id="listeMeds"></div>
-  <button id="addMedBtn" class="action" onclick="ajouterMedicament()">+ Ajouter Médicament</button>
-</section>
+    <section id="vaccins">
+      <h3>Vaccins & Antiparasitaires</h3>
+      <div id="listeVaccins"></div>
+      <button class="action" onclick="ajouterVaccin()">+ Ajouter Vaccin</button>
+    </section>
 
-<section id="vaccins">
-  <h3>Vaccins & Antiparasitaires</h3>
-  <div id="listeVaccins"></div>
-  <button id="addVacBtn" class="action" onclick="ajouterVaccin()">+ Ajouter Vaccin</button>
-</section>
+    <section id="notices">
+      <h3>Notices</h3>
+      <ul id="listeNotices"></ul>
+    </section>
 
-<section id="notices">
-  <h3>Notices</h3>
-  <ul id="listeNotices"></ul>
-</section>
+    <section id="pdf">
+      <h3>Pages du Passeport PDF</h3>
+      <input type="file" id="pdfInput" accept="application/pdf">
+      <button class="action" onclick="ajouterPDF()">+ Ajouter PDF</button>
+      <ul id="listePDF"></ul>
+    </section>
 
-<section id="pdf">
-  <h3>Pages du Passeport PDF</h3>
-  <input type="file" id="pdfInput" accept="application/pdf">
-  <button id="addPdfBtn" class="action" onclick="ajouterPDF()">+ Ajouter PDF</button>
-  <ul id="listePDF"></ul>
-</section>
-
-<section id="liens">
-  <h3>Liens Internet</h3>
-  <div id="listeLiens"></div>
-  <button id="addLinkBtn" class="action" onclick="ajouterLien()">+ Ajouter lien</button>
-</section>
-
-</main>
-
+    <section id="liens">
+      <h3>Liens Internet</h3>
+      <div id="listeLiens"></div>
+      <button class="action" onclick="ajouterLien()">+ Ajouter lien</button>
+    </section>
+  </main>
 <script>
-let appLocked = true;
-const données = { fiche:{}, meds:[], vaccins:[], pdfs:[], liens:[] };
+  const données = { fiche: {}, meds: [], vaccins: [], pdfs: [], liens: [] };
 
-function toggleLock(){
-  appLocked = !appLocked;
-  document.getElementById("lockBtn").textContent = appLocked ? "🔒 Verrouillé" : "🔓 Déverrouillé";
-  applyLock();
-}
+  function showTab(id) {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
+    document.querySelector("button[onclick=\"showTab('" + id + "')\"]").classList.add("active");
+    document.getElementById(id).classList.add("active");
+  }
 
-function applyLock(){
-  document.querySelectorAll("input, textarea").forEach(e => e.disabled = appLocked);
-  saveBtn.disabled = appLocked;
-  addMedBtn.disabled = appLocked;
-  addVacBtn.disabled = appLocked;
-  addPdfBtn.disabled = appLocked;
-  addLinkBtn.disabled = appLocked;
-}
+  function updateAge() {
+    const n = document.getElementById("naissance").value;
+    const span = document.getElementById("age");
+    if (!n) return span.textContent = "-";
+    const birth = new Date(n), now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const m = now.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+    span.textContent = age + " an" + (age > 1 ? "s" : "");
+  }
 
-function showTab(id){
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.querySelector(`nav button[onclick="showTab('${id}')"]`).classList.add("active");
-  document.getElementById(id).classList.add("active");
-}
+  function saveData() {
+    données.fiche = {
+      puce: puce.value, passeport: passeport.value, naissance: naissance.value,
+      poids: poids.value, veto: veto.value, tel: tel.value,
+      clinique: clinique.value, nourriture: nourriture.value,
+      accessoires: accessoires.value, autres: autres.value
+    };
+    localStorage.setItem("chienData", JSON.stringify(données));
+    alert("✔ Données sauvegardées");
+    majNotices();
+  }
 
-function updateAge(){
-  const n = naissance.value;
-  if(!n) return age.textContent = "-";
-  const b = new Date(n), d = new Date();
-  let a = d.getFullYear() - b.getFullYear();
-  if(d.getMonth() < b.getMonth() || (d.getMonth()==b.getMonth() && d.getDate()<b.getDate())) a--;
-  age.textContent = a + " an" + (a>1?"s":"");
-}
+  function ajouterMedicament(nom="", date="", lien="") {
+    const i = données.meds.push({ nom, date, lien }) - 1;
+    const bloc = document.createElement("div");
+    bloc.innerHTML = `
+      <input placeholder="Nom" value="${nom}" onchange="données.meds[${i}].nom=this.value">
+      <input type="date" value="${date}" onchange="données.meds[${i}].date=this.value">
+      <input placeholder="Lien notice" value="${lien}" onchange="données.meds[${i}].lien=this.value; majNotices()"><hr>`;
+    listeMeds.appendChild(bloc);
+  }
 
-function saveData(){
-  if(appLocked) return;
-  données.fiche = {
-    puce:puce.value, passeport:passeport.value, naissance:naissance.value,
-    poids:poids.value, veto:veto.value, tel:tel.value,
-    clinique:clinique.value, nourriture:nourriture.value,
-    accessoires:accessoires.value, autres:autres.value
-  };
-  localStorage.setItem("chienData", JSON.stringify(données));
-  alert("✔ Données sauvegardées");
-  majNotices();
-}
+  function ajouterVaccin(nom="", date="", lien="") {
+    const i = données.vaccins.push({ nom, date, lien }) - 1;
+    const bloc = document.createElement("div");
+    bloc.innerHTML = `
+      <input placeholder="Nom" value="${nom}" onchange="données.vaccins[${i}].nom=this.value">
+      <input type="date" value="${date}" onchange="données.vaccins[${i}].date=this.value">
+      <input placeholder="Lien notice" value="${lien}" onchange="données.vaccins[${i}].lien=this.value; majNotices()"><hr>`;
+    listeVaccins.appendChild(bloc);
+  }
 
-document.getElementById("importJson").addEventListener("change", e=>{
-  const f = e.target.files[0];
-  if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    try{
-      const obj = JSON.parse(r.result);
-      localStorage.setItem("chienData", JSON.stringify(obj));
-      alert("✔ Restauration réussie");
+  function majNotices() {
+    const liens = [...données.meds, ...données.vaccins].map(e => e.lien).filter(Boolean);
+    listeNotices.innerHTML = liens.map(l => `<li><a href="${l}" target="_blank">${l}</a></li>`).join("");
+  }
+
+  function ajouterPDF() {
+    const f = pdfInput.files[0];
+    if (f) {
+      données.pdfs.push(f.name);
+      const li = document.createElement("li");
+      li.textContent = f.name;
+      listePDF.appendChild(li);
+    }
+  }
+
+  function ajouterLien(nom="", url="") {
+    const i = données.liens.push({ nom, url }) - 1;
+    const bloc = document.createElement("div");
+    bloc.innerHTML = `
+      <input placeholder="Nom" value="${nom}" onchange="données.liens[${i}].nom=this.value">
+      <input placeholder="URL" value="${url}" onchange="données.liens[${i}].url=this.value">
+      <hr>`;
+    listeLiens.appendChild(bloc);
+  }
+
+  window.onload = () => {
+    const sauvegarde = JSON.parse(localStorage.getItem("chienData") || "{}");
+    if (!sauvegarde.fiche) return;
+    Object.assign(données, sauvegarde);
+    const f = données.fiche;
+    puce.value = f.puce || ""; passeport.value = f.passeport || "";
+    naissance.value = f.naissance || ""; poids.value = f.poids || "";
+    veto.value = f.veto || ""; tel.value = f.tel || "";
+    clinique.value = f.clinique || ""; nourriture.value = f.nourriture || "";
+    accessoires.value = f.accessoires || ""; autres.value = f.autres || "";
+    updateAge();
+    données.meds.forEach(m => ajouterMedicament(m.nom, m.date, m.lien));
+    données.vaccins.forEach(v => ajouterVaccin(v.nom, v.date, v.lien));
+    données.pdfs.forEach(n => {
+      const li = document.createElement("li");
+      li.textContent = n;
+      listePDF.appendChild(li);
+    });
+    données.liens.forEach(l => ajouterLien(l.nom, l.url));
+    majNotices();
+  }
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+
+      if (!imported.fiche) {
+        alert("❌ Fichier invalide");
+        return;
+      }
+
+      localStorage.setItem("chienData", JSON.stringify(imported));
+      alert("✔ Importation réussie\nLes données vont être rechargées");
       location.reload();
-    }catch{
-      alert("❌ Fichier JSON invalide");
+    } catch {
+      alert("❌ Erreur lors de l'importation");
     }
   };
-  r.readAsText(f);
-});
-
-window.onload = ()=>{
-  const s = JSON.parse(localStorage.getItem("chienData")||"{}");
-  Object.assign(données, s);
-  if(données.fiche){
-    puce.value=données.fiche.puce||""; passeport.value=données.fiche.passeport||"";
-    naissance.value=données.fiche.naissance||""; poids.value=données.fiche.poids||"";
-    veto.value=données.fiche.veto||""; tel.value=données.fiche.tel||"";
-    clinique.value=données.fiche.clinique||""; nourriture.value=données.fiche.nourriture||"";
-    accessoires.value=données.fiche.accessoires||""; autres.value=données.fiche.autres||"";
-  }
-  updateAge();
-  applyLock();
-};
+  reader.readAsText(file);
+}
 </script>
-
 </body>
 </html>
