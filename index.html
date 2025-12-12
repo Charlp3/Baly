@@ -1,50 +1,54 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fiche Chien - Pierre Charlier 2025</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Chien - Pierre Charlier 2025</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #D0E4F7;
       color: #1C2A40;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #2C5E99;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    header small {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 5px;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: #1C3B68;
+      border-bottom: 2px solid #113059;
+    }
+    nav button {
+      flex: 1;
+      padding: 12px;
+      background-color: #1C3B68;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    nav button.active {
+      background-color: #D0E4F7;
+      color: #1C3B68;
+      font-weight: bold;
+    }
+    section {
+      display: none;
       padding: 20px;
     }
-    h1 {
-      background-color: #2C5E99;
-      color: white;
-      padding: 12px;
-      text-align: center;
-      border-radius: 8px;
-    }
-    label {
-      font-weight: bold;
+    section.active {
       display: block;
-      margin-top: 10px;
-      font-size: 1.1rem;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 5px;
-      border: 1px solid #587EA3;
-      background-color: #F0F8FF;
-      font-size: 1.1rem;
-    }
-    button {
-      background-color: #2C5E99;
-      color: white;
-      padding: 8px 12px;
-      margin: 8px 6px 0 0;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1.05rem;
-    }
-    button:hover {
-      background-color: #20446E;
     }
     .entry-group {
       border: 1px solid #bbb;
@@ -53,23 +57,43 @@
       margin-top: 10px;
       background-color: #EAF2FB;
     }
-    .delete-btn {
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #587EA3;
+      background-color: #F0F8FF;
+      font-size: 1rem;
+    }
+    label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+    button.action {
+      background-color: #2C5E99;
+      color: white;
+      padding: 8px 12px;
+      margin: 10px 4px 0 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button.delete-btn {
       background-color: #c33;
       color: white;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       margin-top: 6px;
       padding: 6px 10px;
       border-radius: 4px;
     }
-    .delete-btn:hover {
-      background-color: #a00;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 30px;
-      background-color: #f9fbff;
-      font-size: 1.05rem;
+      margin-top: 20px;
+      background-color: #fff;
     }
     th, td {
       padding: 10px;
@@ -80,226 +104,200 @@
       background-color: #2C5E99;
       color: white;
     }
-    footer {
-      margin-top: 30px;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #1C2A40;
-      border-top: 1px solid #587EA3;
-      padding-top: 10px;
+    tr:nth-child(even) {
+      background-color: #f2f7fc;
     }
   </style>
 </head>
 <body>
-<h1>Contrôle de mon chien 🐾</h1>
-<form id="dogForm">
-  <label>Nº Puce</label>
-  <input type="text" id="chipId"/>
-  <label>Nº Passeport</label>
-  <input type="text" id="passportId"/>
-  <label>Date de naissance</label>
-  <input type="date" id="birthDate"/>
-  <label>Poids (kg)</label>
-  <input type="number" id="weight" step="0.1"/>
+  <header>
+    Suivi de mon chien 🐾
+    <small>© Pierre Charlier 2025 — Version 1.8</small>
+  </header>
 
-  <label>Vaccinations</label>
-  <div id="vaccinationList"></div>
-  <button type="button" onclick="addVaccination()">+ Ajouter vaccination</button>
+  <nav>
+    <button onclick="showTab('fiche')" class="active">Fiche</button>
+    <button onclick="showTab('medicaments')">Médicaments</button>
+    <button onclick="showTab('vaccins')">Vaccins / Antiparasites</button>
+    <button onclick="showTab('notices')">Notices</button>
+    <button onclick="showTab('passeport')">Passeport PDF</button>
+  </nav>
 
-  <label>Déparasitage</label>
-  <div id="deparasitageList"></div>
-  <button type="button" onclick="addDeparasitage()">+ Ajouter déparasitage</button>
+  <main>
+    <section id="fiche" class="active"><label for="chipId">Nº de puce</label>
+      <input type="text" id="chipId">
 
-  <label>Maladies</label>
-  <div id="maladiesList"></div>
-  <button type="button" onclick="addMaladie()">+ Ajouter maladie</button>
+      <label for="passportId">Nº de passeport</label>
+      <input type="text" id="passportId">
 
-  <label>Laboratoire</label>
-  <div id="laboList"></div>
-  <button type="button" onclick="addLabo()">+ Ajouter labo</button>
+      <label for="birthDate">Date de naissance</label>
+      <input type="date" id="birthDate" onchange="updateAge()">
+      <div><strong>Âge :</strong> <span id="dogAge">-</span></div>
 
-  <label>Radiographies (Rx)</label>
-  <div id="rxList"></div>
-  <button type="button" onclick="addRx()">+ Ajouter Rx</button>
+      <label for="weight">Poids (kg)</label>
+      <input type="number" id="weight" step="0.1">
 
-  <label>Véto / Confrères</label>
-  <input type="text" id="veto"/>
-  <label>Téléphone</label>
-  <input type="tel" id="tel"/>
-  <label>Clinique / Cabinet</label>
-  <input type="text" id="clinic"/>
-  <label>Nourriture</label>
-  <textarea id="nourriture"></textarea>
-  <label>Accessoires</label>
-  <textarea id="accessoires"></textarea>
-  <label>Autres</label>
-  <textarea id="autres"></textarea>
+      <label for="veto">Vétérinaire / Confrères</label>
+      <input type="text" id="veto">
 
-  <div>
-    <button type="button" onclick="exportJSON()">💾 Exporter JSON</button>
-    <button type="button" onclick="document.getElementById('importFile').click()">📁 Importer JSON</button>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)"/>
-    <button type="button" onclick="clearData()">🗑 Effacer les données</button>
-  </div>
-</form>
+      <label for="tel">Téléphone</label>
+      <input type="tel" id="tel">
 
-<table id="dataTable">
-  <thead><tr><th>Champ</th><th>Valeur</th></tr></thead>
-  <tbody></tbody>
-</table>
+      <label for="clinic">Clinique / Cabinet</label>
+      <input type="text" id="clinic">
 
-<footer>© Pierre Charlier 2025 — Version 1.6</footer>
+      <label for="nourriture">Nourriture</label>
+      <textarea id="nourriture" rows="2"></textarea>
 
-<script>
-const fields = [
-  { id: "chipId", label: "Nº Puce" },
-  { id: "passportId", label: "Nº Passeport" },
-  { id: "birthDate", label: "Date de naissance" },
-  { id: "weight", label: "Poids (kg)" },
-  { id: "veto", label: "Véto / Confrères" },
-  { id: "tel", label: "Téléphone" },
-  { id: "clinic", label: "Clinique / Cabinet" },
-  { id: "nourriture", label: "Nourriture" },
-  { id: "accessoires", label: "Accessoires" },
-  { id: "autres", label: "Autres" }
-];
+      <label for="accessoires">Accessoires</label>
+      <textarea id="accessoires" rows="2"></textarea>
 
-let vaccinations = [], deparasitage = [], maladies = [], laboList = [], rxList = [];
+      <label for="autres">Autres</label>
+      <textarea id="autres" rows="2"></textarea>
 
-window.onload = () => {
-  const saved = localStorage.getItem("dogData");
-  if (saved) {
-    const data = JSON.parse(saved);
-    fields.forEach(f => {
-      if (data[f.id]) document.getElementById(f.id).value = data[f.id];
-    });
-    vaccinations = data.vaccinations || [];
-    deparasitage = data.deparasitage || [];
-    maladies = data.maladies || [];
-    laboList = data.laboList || [];
-    rxList = data.rxList || [];
-    renderEntries();
-    updateTable();
-  }
-};
+      <button class="action" onclick="saveData()">💾 Sauvegarder</button>
+    </section><section id="medicaments">
+      <h2>Médicaments</h2>
+      <div id="medicamentsList"></div>
+      <button class="action" onclick="addMedicament()">+ Ajouter un médicament</button>
+    </section>
+    <section id="vaccins">
+      <h2>Vaccins & Antiparasitaires</h2>
+      <div id="vaccinsList"></div>
+      <button class="action" onclick="addVaccin()">+ Ajouter un vaccin ou antiparasitaire</button>
+    </section>
 
-fields.forEach(f => {
-  document.getElementById(f.id).addEventListener("input", autoSave);
-});
+    <section id="notices">
+      <h2>Notices enregistrées</h2>
+      <ul id="noticesList"></ul>
+    </section>
 
-function formatDate(d) {
-  if (!d) return "";
-  const dt = new Date(d);
-  return ('0'+dt.getDate()).slice(-2) + "/" + ('0'+(dt.getMonth()+1)).slice(-2) + "/" + dt.getFullYear();
-}
+    <section id="passeport">
+      <h2>Pages du passeport PDF</h2>
+      <input type="file" id="pdfInput" accept="application/pdf">
+      <button class="action" onclick="addPDF()">+ Ajouter un PDF</button>
+      <ul id="pdfList"></ul>
+    </section>
+  </main>
 
-function renderList(list, elementId, type) {
-  const div = document.getElementById(elementId);
-  div.innerHTML = "";
-  list.forEach((item, i) => {
-    div.innerHTML += `
-      <div class="entry-group">
-        <input type="date" value="${item.date}" onchange="${type}[${i}].date=this.value; autoSave()"/>
-        <input type="text" placeholder="Description" value="${item.nom}" onchange="${type}[${i}].nom=this.value; autoSave()"/>
-        <button class="delete-btn" onclick="${type}.splice(${i},1); renderEntries(); autoSave()">❌ Supprimer</button>
-      </div>`;
-  });
-}
-
-function renderEntries() {
-  renderList(vaccinations, "vaccinationList", "vaccinations");
-  renderList(deparasitage, "deparasitageList", "deparasitage");
-  renderList(maladies, "maladiesList", "maladies");
-  renderList(laboList, "laboList", "laboList");
-  renderList(rxList, "rxList", "rxList");
-  updateTable();
-}
-
-function autoSave() {
-  const data = {};
-  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-  data.vaccinations = vaccinations;
-  data.deparasitage = deparasitage;
-  data.maladies = maladies;
-  data.laboList = laboList;
-  data.rxList = rxList;
-  localStorage.setItem("dogData", JSON.stringify(data));
-  updateTable();
-}
-
-function updateTable() {
-  const tbody = document.querySelector("#dataTable tbody");
-  tbody.innerHTML = "";
-  const addRow = (label, value) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${label}</td><td>${value}</td>`;
-    tbody.appendChild(row);
-  };
-  fields.forEach(f => {
-    const val = document.getElementById(f.id).value;
-    addRow(f.label, f.id.includes("Date") ? formatDate(val) : val);
-  });
-  vaccinations.forEach((v, i) => addRow(`Vaccination ${i+1}`, `${formatDate(v.date)} — ${v.nom}`));
-  deparasitage.forEach((d, i) => addRow(`Déparasitage ${i+1}`, `${formatDate(d.date)} — ${d.nom}`));
-  maladies.forEach((m, i) => addRow(`Maladie ${i+1}`, `${formatDate(m.date)} — ${m.nom}`));
-  laboList.forEach((l, i) => addRow(`Labo ${i+1}`, `${formatDate(l.date)} — ${l.nom}`));
-  rxList.forEach((r, i) => addRow(`Rx ${i+1}`, `${formatDate(r.date)} — ${r.nom}`));
-}
-
-function clearData() {
-  if (confirm("Supprimer toutes les données ?")) {
-    localStorage.removeItem("dogData");
-    location.reload();
-  }
-}
-
-function exportJSON() {
-  const data = {};
-  fields.forEach(f => data[f.id] = document.getElementById(f.id).value);
-  data.vaccinations = vaccinations;
-  data.deparasitage = deparasitage;
-  data.maladies = maladies;
-  data.laboList = laboList;
-  data.rxList = rxList;
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "chien_sauvegarde.json";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function importJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      fields.forEach(f => {
-        if (data[f.id] !== undefined) document.getElementById(f.id).value = data[f.id];
-      });
-      vaccinations = data.vaccinations || [];
-      deparasitage = data.deparasitage || [];
-      maladies = data.maladies || [];
-      laboList = data.laboList || [];
-      rxList = data.rxList || [];
-      renderEntries();
-      autoSave();
-      alert("✔ Import réussi avec succès !");
-    } catch {
-      alert("Erreur lors de l'import JSON.");
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.querySelector("button[onclick="showTab('" + tabId + "')"]").classList.add("active");
+      document.getElementById(tabId).classList.add("active");
     }
-  };
-  reader.readAsText(file);
-}
 
-function addVaccination() { vaccinations.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
-function addDeparasitage() { deparasitage.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
-function addMaladie() { maladies.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
-function addLabo() { laboList.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
-function addRx() { rxList.push({ date: "", nom: "" }); renderEntries(); autoSave(); }
-</script>
+    function updateAge() {
+      const birth = document.getElementById("birthDate").value;
+      const ageSpan = document.getElementById("dogAge");
+      if (!birth) return ageSpan.textContent = "-";
+      const b = new Date(birth);
+      const today = new Date();
+      let age = today.getFullYear() - b.getFullYear();
+      const m = today.getMonth() - b.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+      ageSpan.textContent = age + " an" + (age > 1 ? "s" : "");
+    }
+
+    const medicaments = [];
+    const vaccins = [];
+    const notices = new Set();
+    const pdfFiles = [];
+
+    function saveData() {
+      const data = {
+        chipId: document.getElementById("chipId").value,
+        passportId: document.getElementById("passportId").value,
+        birthDate: document.getElementById("birthDate").value,
+        weight: document.getElementById("weight").value,
+        veto: document.getElementById("veto").value,
+        tel: document.getElementById("tel").value,
+        clinic: document.getElementById("clinic").value,
+        nourriture: document.getElementById("nourriture").value,
+        accessoires: document.getElementById("accessoires").value,
+        autres: document.getElementById("autres").value,
+        medicaments, vaccins, pdfFiles: pdfFiles.map(p => p.name)
+      };
+      localStorage.setItem("chienData", JSON.stringify(data));
+      alert("✔ Données sauvegardées");
+    }
+
+    function addMedicament() {
+      const m = { nom: "", date: "", lien: "" };
+      medicaments.push(m);
+      const div = document.createElement("div");
+      div.className = "entry-group";
+      div.innerHTML = `
+        <label>Nom</label><input onchange="m.nom=this.value" placeholder="Nom du médicament">
+        <label>Date</label><input type="date" onchange="m.date=this.value">
+        <label>Lien notice</label><input onchange="m.lien=this.value; updateNotices()" placeholder="https://...">
+      `;
+      document.getElementById("medicamentsList").appendChild(div);
+    }
+
+    function addVaccin() {
+      const v = { nom: "", date: "", lien: "" };
+      vaccins.push(v);
+      const div = document.createElement("div");
+      div.className = "entry-group";
+      div.innerHTML = `
+        <label>Nom</label><input onchange="v.nom=this.value" placeholder="Nom du vaccin ou antiparasitaire">
+        <label>Date</label><input type="date" onchange="v.date=this.value">
+        <label>Lien notice</label><input onchange="v.lien=this.value; updateNotices()" placeholder="https://...">
+      `;
+      document.getElementById("vaccinsList").appendChild(div);
+    }
+
+    function updateNotices() {
+      notices.clear();
+      medicaments.forEach(m => m.lien && notices.add(m.lien));
+      vaccins.forEach(v => v.lien && notices.add(v.lien));
+      const ul = document.getElementById("noticesList");
+      ul.innerHTML = "";
+      notices.forEach(link => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+        ul.appendChild(li);
+      });
+    }
+
+    function addPDF() {
+      const input = document.getElementById("pdfInput");
+      if (input.files.length > 0) {
+        const file = input.files[0];
+        pdfFiles.push(file);
+        const li = document.createElement("li");
+        li.textContent = file.name + " ";
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "🗑";
+        removeBtn.onclick = () => {
+          const i = pdfFiles.indexOf(file);
+          if (i > -1) pdfFiles.splice(i, 1);
+          li.remove();
+        };
+        li.appendChild(removeBtn);
+        document.getElementById("pdfList").appendChild(li);
+      }
+    }
+
+    window.onload = () => {
+      const saved = localStorage.getItem("chienData");
+      if (saved) {
+        const d = JSON.parse(saved);
+        ["chipId","passportId","birthDate","weight","veto","tel","clinic","nourriture","accessoires","autres"].forEach(id => {
+          if (d[id]) document.getElementById(id).value = d[id];
+        });
+        updateAge();
+        (d.medicaments || []).forEach(() => addMedicament());
+        (d.vaccins || []).forEach(() => addVaccin());
+        (d.pdfFiles || []).forEach(name => {
+          const li = document.createElement("li");
+          li.textContent = name;
+          document.getElementById("pdfList").appendChild(li);
+        });
+      }
+    }
+  </script>
 </body>
 </html>
