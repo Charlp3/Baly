@@ -221,15 +221,18 @@ function importData(event) {
     try {
       const imported = JSON.parse(e.target.result);
 
-      if (!imported.fiche) {
-        alert("❌ Fichier invalide");
+      if (!imported.fiche || !imported.meds || !imported.vaccins) {
+        alert("❌ Fichier JSON incompatible");
         return;
       }
 
+      // Sécurité : écrasement total
+      localStorage.clear();
       localStorage.setItem("chienData", JSON.stringify(imported));
-      alert("✔ Importation réussie\nLes données vont être rechargées");
+
+      alert("✔ Importation réussie\nRedémarrage de l'application");
       location.reload();
-    } catch {
+    } catch (err) {
       alert("❌ Erreur lors de l'importation");
     }
   };
