@@ -318,18 +318,23 @@ function ajouterPDF(){
 }
 
 function ouvrirFichierPDFTemporaire(file){
+  // 1️⃣ OUVERTURE IMMÉDIATE (autorisé par iOS)
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Autorise l’ouverture des fenêtres.");
+    return;
+  }
+
+  // 2️⃣ Lecture du PDF
   const reader = new FileReader();
 
   reader.onload = function () {
-    const win = window.open();
-    if (win) {
-      win.location.href = reader.result; // DataURL → OK iOS
-    } else {
-      alert("Autorise l’ouverture des fenêtres.");
-    }
+    // 3️⃣ Injection du PDF dans la fenêtre déjà ouverte
+    win.location.href = reader.result;
   };
 
   reader.onerror = function () {
+    win.close();
     alert("Erreur lors de la lecture du PDF.");
   };
 
