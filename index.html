@@ -1,360 +1,540 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suivi de mon chien – v1.9</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Suivi de mon chien – v1.9c</title>
 
 <style>
-body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
-header { background:#2C5E99; color:#fff; text-align:center; padding:15px; }
+  body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
+  header { background:#2C5E99; color:#fff; text-align:center; padding:15px; }
 
-nav { display:flex; background:#1C3B68; flex-wrap:wrap; }
-nav button {
-  flex:1 1 25%;
-  padding:12px;
-  background:#1C3B68;
-  color:#fff;
-  border:none;
-  font-size:1rem;
-}
-nav button.active {
-  background:#D0E4F7;
-  color:#1C3B68;
-  font-weight:bold;
-}
+  nav { display:flex; background:#1C3B68; flex-wrap:wrap; }
+  nav button{
+    flex:1 1 25%;
+    padding:12px;
+    background:#1C3B68;
+    color:#fff;
+    border:none;
+    font-size:1rem;
+  }
+  nav button.active{
+    background:#D0E4F7;
+    color:#1C3B68;
+    font-weight:bold;
+  }
 
-section { display:none; padding:20px; }
-section.active { display:block; }
+  section { display:none; padding:20px; }
+  section.active { display:block; }
 
-label { display:block; margin-top:10px; font-weight:bold; }
-input, textarea {
-  width:100%;
-  padding:8px;
-  margin-top:4px;
-  border-radius:4px;
-  border:1px solid #587EA3;
-  background:#F0F8FF;
-  font-size:1rem;
-}
+  label { display:block; margin-top:10px; font-weight:bold; }
+  input, textarea{
+    width:100%;
+    padding:8px;
+    margin-top:4px;
+    border-radius:4px;
+    border:1px solid #587EA3;
+    background:#F0F8FF;
+    font-size:1rem;
+    box-sizing:border-box;
+  }
 
-/* 🔠 FICHE : polices agrandies */
-#fiche label { font-size:1.1rem; }
-#fiche input,
-#fiche textarea {
-  font-size:1.15rem;
-  padding:10px;
-}
+  /* 🔠 FICHE : polices agrandies */
+  #fiche label { font-size:1.1rem; }
+  #fiche input, #fiche textarea { font-size:1.15rem; padding:10px; }
 
-button.action {
-  margin-top:12px;
-  padding:10px 15px;
-  background:#2C5E99;
-  color:#fff;
-  border:none;
-  border-radius:5px;
-  font-size:1rem;
-}
+  button.action{
+    margin-top:12px;
+    padding:10px 15px;
+    background:#2C5E99;
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    font-size:1rem;
+  }
 
-/* 🔴 petit bouton supprimer */
-button.suppr {
-  background:#C0392B;
-  color:#fff;
-  border:none;
-  border-radius:4px;
-  padding:4px 8px;
-  font-size:0.8rem;
-  margin-top:6px;
-}
-button.suppr:active { background:#922B21; }
+  button.suppr{
+    background:#C0392B;
+    color:#fff;
+    border:none;
+    border-radius:4px;
+    padding:4px 8px;
+    font-size:0.8rem;
+    margin-top:6px;
+  }
+  button.suppr:active { background:#922B21; }
 
-hr { margin:18px 0; }
-a { color:#1C3B68; word-break:break-all; }
-.ligne { margin-bottom:10px; }
+  hr { margin:18px 0; }
+  a { color:#1C3B68; word-break:break-all; }
+
+  .ligne { margin-bottom:10px; }
+  .note { font-size:0.95rem; opacity:0.9; margin-top:6px; }
+  .petit { font-size:0.92rem; opacity:0.9; }
 </style>
 </head>
 
 <body>
 
 <header>
-Suivi de mon chien 🐾<br>
-<small>© Pierre Charlier 2025 — Version 1.9</small>
+  Suivi de mon chien 🐾<br>
+  <small>© Pierre Charlier 2025 — Version 1.9c</small>
 </header>
 
 <nav>
-<button onclick="showTab('fiche')" class="active">Fiche</button>
-<button onclick="showTab('sante')">Santé</button>
-<button onclick="showTab('pdf')">Passeport PDF</button>
-<button onclick="showTab('liens')">Liens Web</button>
+  <button class="active" onclick="showTab('fiche', this)">Fiche</button>
+  <button onclick="showTab('sante', this)">Santé</button>
+  <button onclick="showTab('pdf', this)">Passeport PDF</button>
+  <button onclick="showTab('liens', this)">Liens Web</button>
 </nav>
 
 <main>
 
 <!-- ================= FICHE ================= -->
 <section id="fiche" class="active">
-<label>Puce</label><input id="puce">
-<label>Passeport</label><input id="passeport">
-<label>Date de naissance</label>
-<input type="date" id="naissance" onchange="updateAge()">
-<div><strong>Âge :</strong> <span id="age">-</span></div>
+  <label>Puce</label><input id="puce">
+  <label>Passeport</label><input id="passeport">
 
-<label>Poids (kg)</label><input type="number" id="poids">
-<label>Vétérinaire</label><input id="veto">
-<label>Téléphone</label><input id="tel">
-<label>Clinique</label><input id="clinique">
+  <label>Date de naissance</label>
+  <input type="date" id="naissance" onchange="updateAge(); saveData(false)">
+  <div><strong>Âge :</strong> <span id="age">-</span></div>
 
-<label>Nourriture</label><textarea id="nourriture"></textarea>
-<label>Accessoires</label><textarea id="accessoires"></textarea>
-<label>Autres</label><textarea id="autres"></textarea>
+  <label>Poids (kg)</label><input type="number" id="poids">
+  <label>Vétérinaire</label><input id="veto">
+  <label>Téléphone</label><input id="tel">
+  <label>Clinique</label><input id="clinique">
 
-<button class="action" onclick="saveData()">💾 Sauvegarder</button>
-<button class="action" onclick="exportData()">📤 Exporter JSON</button>
+  <label>Nourriture</label><textarea id="nourriture"></textarea>
+  <label>Accessoires</label><textarea id="accessoires"></textarea>
+  <label>Autres</label><textarea id="autres"></textarea>
 
-<input type="file" id="importInput" accept="application/json" hidden onchange="importData(event)">
-<button class="action" onclick="importInput.click()">📥 Importer</button>
+  <button class="action" onclick="saveData(true)">💾 Sauvegarder</button>
+  <button class="action" onclick="exportData()">📤 Exporter JSON</button>
+
+  <input type="file" id="importInput" accept="application/json" hidden onchange="importData(event)">
+  <button class="action" onclick="document.getElementById('importInput').click()">📥 Importer</button>
 </section>
 
 <!-- ================= SANTE ================= -->
 <section id="sante">
-<h3>Maladies</h3>
-<div id="listeMaladies"></div>
-<button class="action" onclick="ajouterMaladie()">+ Ajouter</button>
-<hr>
+  <h3>Maladies</h3>
+  <div id="listeMaladies"></div>
+  <button class="action" onclick="ajouterMaladie()">+ Ajouter</button>
+  <hr>
 
-<h3>Accidents</h3>
-<div id="listeAccidents"></div>
-<button class="action" onclick="ajouterAccident()">+ Ajouter</button>
-<hr>
+  <h3>Accidents</h3>
+  <div id="listeAccidents"></div>
+  <button class="action" onclick="ajouterAccident()">+ Ajouter</button>
+  <hr>
 
-<h3>Traitements</h3>
-<div id="listeTraitements"></div>
-<button class="action" onclick="ajouterTraitement()">+ Ajouter</button>
+  <h3>Traitements</h3>
+  <div id="listeTraitements"></div>
+  <button class="action" onclick="ajouterTraitement()">+ Ajouter</button>
 </section>
 
 <!-- ================= PDF ================= -->
 <section id="pdf">
-<h3>Passeport PDF</h3>
-<input type="file" id="pdfInput" accept="application/pdf">
-<button class="action" onclick="ajouterPDF()">+ Ajouter</button>
-<ul id="listePDF"></ul>
+  <h3>Passeport PDF</h3>
+
+  <div class="petit">
+    Sur iPhone/iPad, une page web ne peut pas conserver l’accès direct à un PDF de l’app <b>Fichiers</b> après fermeture.
+    Donc : on peut <b>l’ouvrir maintenant</b>, et pour le rouvrir plus tard il faudra <b>le re-sélectionner</b> depuis Fichiers.
+  </div>
+
+  <hr>
+
+  <label>Sélectionner un PDF (Fichiers)</label>
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <button class="action" onclick="ajouterPDF()">+ Ajouter (mémo) & Ouvrir</button>
+
+  <!-- input caché utilisé pour "Ouvrir" un PDF plus tard -->
+  <input type="file" id="pdfOpenInput" accept="application/pdf" hidden onchange="ouvrirPDFSelectionne(event)">
+
+  <ul id="listePDF"></ul>
 </section>
 
 <!-- ================= LIENS ================= -->
 <section id="liens">
-<h3>Liens Web</h3>
-<input id="nomLien" placeholder="Nom">
-<input id="urlLien" placeholder="URL (https://...)">
-<button class="action" onclick="ajouterLien()">+ Ajouter le lien</button>
-<hr>
-<div id="listeLiens"></div>
+  <h3>Liens Web</h3>
+  <input id="nomLien" placeholder="Nom">
+  <input id="urlLien" placeholder="URL (https://...)">
+  <button class="action" onclick="ajouterLien()">+ Ajouter le lien</button>
+  <hr>
+  <div id="listeLiens"></div>
 </section>
 
 </main>
 
 <script>
+/* ================= Données ================= */
 const données = {
   fiche:{},
   maladies:[],
   accidents:[],
   traitements:[],
-  pdfs:[],
+  pdfs:[],   // { nom, addedISO }
   liens:[]
 };
 
-/* -------- Navigation -------- */
-function showTab(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-event.target.classList.add("active");
+/* ================= Navigation ================= */
+function showTab(id, btn){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(btn) btn.classList.add("active");
 }
 
-/* -------- Fiche -------- */
+/* ================= Utilitaires ================= */
+function nowISO(){ return new Date().toISOString(); }
+
+function safeParse(json, fallback){
+  try { return JSON.parse(json); } catch { return fallback; }
+}
+
+/* ================= Âge ================= */
 function updateAge(){
-if(!naissance.value){ age.textContent="-"; return; }
-const b=new Date(naissance.value), n=new Date();
-let a=n.getFullYear()-b.getFullYear();
-if(n.getMonth()<b.getMonth() || (n.getMonth()==b.getMonth() && n.getDate()<b.getDate())) a--;
-age.textContent = a + " an" + (a>1?"s":"");
+  const naissanceEl = document.getElementById("naissance");
+  const ageEl = document.getElementById("age");
+  if(!naissanceEl.value){ ageEl.textContent = "-"; return; }
+
+  const b = new Date(naissanceEl.value);
+  const n = new Date();
+  let a = n.getFullYear() - b.getFullYear();
+  if(n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--;
+  ageEl.textContent = a + " an" + (a>1 ? "s" : "");
 }
 
-function saveData(){
-données.fiche={
-puce:puce.value,passeport:passeport.value,naissance:naissance.value,
-poids:poids.value,veto:veto.value,tel:tel.value,clinique:clinique.value,
-nourriture:nourriture.value,accessoires:accessoires.value,autres:autres.value
-};
-localStorage.setItem("chienData",JSON.stringify(données));
-alert("✔ Données sauvegardées");
+/* ================= Sauvegarde ================= */
+/* showAlert=false => autosauvegarde silencieuse (évite "Données sauvegardées" quand tu cliques sur Ajouter) */
+function saveData(showAlert=true){
+  // fiche
+  données.fiche = {
+    puce:document.getElementById("puce").value,
+    passeport:document.getElementById("passeport").value,
+    naissance:document.getElementById("naissance").value,
+    poids:document.getElementById("poids").value,
+    veto:document.getElementById("veto").value,
+    tel:document.getElementById("tel").value,
+    clinique:document.getElementById("clinique").value,
+    nourriture:document.getElementById("nourriture").value,
+    accessoires:document.getElementById("accessoires").value,
+    autres:document.getElementById("autres").value
+  };
+
+  localStorage.setItem("chienData", JSON.stringify(données));
+
+  if(showAlert) alert("✔ Données sauvegardées");
 }
 
 function exportData(){
-const blob=new Blob([JSON.stringify(données,null,2)],{type:"application/json"});
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="chien_sauvegarde.json";
-a.click();
-URL.revokeObjectURL(a.href);
+  const blob = new Blob([JSON.stringify(données,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "chien_sauvegarde.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function importData(e){
-const f=e.target.files[0]; if(!f) return;
-const r=new FileReader();
-r.onload=()=>{
-try{
-Object.assign(données, JSON.parse(r.result));
-localStorage.setItem("chienData",JSON.stringify(données));
-location.reload();
-}catch{ alert("❌ Fichier invalide"); }
-};
-r.readAsText(f);
+  const f = e.target.files[0];
+  if(!f) return;
+
+  const r = new FileReader();
+  r.onload = ()=>{
+    const obj = safeParse(r.result, null);
+    if(!obj || typeof obj !== "object"){ alert("❌ Fichier invalide"); return; }
+
+    // Fusion contrôlée
+    données.fiche = obj.fiche || {};
+    données.maladies = Array.isArray(obj.maladies) ? obj.maladies : [];
+    données.accidents = Array.isArray(obj.accidents) ? obj.accidents : [];
+    données.traitements = Array.isArray(obj.traitements) ? obj.traitements : [];
+    données.pdfs = Array.isArray(obj.pdfs) ? obj.pdfs : [];
+    données.liens = Array.isArray(obj.liens) ? obj.liens : [];
+
+    localStorage.setItem("chienData", JSON.stringify(données));
+    alert("✔ Importation réussie");
+    location.reload();
+  };
+  r.readAsText(f);
 }
 
-/* -------- Liens Web -------- */
+/* ================= Liens Web ================= */
 function ajouterLien(){
-if(!urlLien.value) return;
-données.liens.push({nom:nomLien.value||urlLien.value, url:urlLien.value});
-nomLien.value=""; urlLien.value="";
-afficherLiens();
-saveData();
+  const nom = document.getElementById("nomLien").value.trim();
+  const url = document.getElementById("urlLien").value.trim();
+  if(!url) return;
+
+  données.liens.push({nom: nom || url, url});
+  document.getElementById("nomLien").value = "";
+  document.getElementById("urlLien").value = "";
+
+  afficherLiens();
+  saveData(false);
 }
 
 function supprimerLien(i){
-données.liens.splice(i,1);
-afficherLiens();
-saveData();
+  données.liens.splice(i,1);
+  afficherLiens();
+  saveData(false);
 }
 
 function afficherLiens(){
-listeLiens.innerHTML="";
-données.liens.forEach((l,i)=>{
-listeLiens.innerHTML+=`
-<div class="ligne">
-<strong>${l.nom}</strong><br>
-<a href="${l.url}" target="_blank">${l.url}</a><br>
-<button class="suppr" onclick="supprimerLien(${i})">Supprimer</button>
-<hr>
-</div>`;
-});
+  const cont = document.getElementById("listeLiens");
+  cont.innerHTML = "";
+  données.liens.forEach((l,i)=>{
+    cont.innerHTML += `
+      <div class="ligne">
+        <strong>${escapeHtml(l.nom)}</strong><br>
+        <a href="${escapeAttr(l.url)}" target="_blank" rel="noopener">${escapeHtml(l.url)}</a><br>
+        <button class="suppr" onclick="supprimerLien(${i})">Supprimer</button>
+        <hr>
+      </div>
+    `;
+  });
 }
 
-/* -------- PDF -------- */
+/* ================= PDF (correction iOS) ================= */
+/*
+  IMPORTANT :
+  - Ne plus stocker de URL.createObjectURL(blob) dans les données (ça meurt à la fermeture).
+  - On mémorise seulement le NOM (et une date d’ajout).
+  - Pour ouvrir plus tard : on redemande le fichier via Fichiers (sélecteur).
+*/
 function ajouterPDF(){
-const f=pdfInput.files[0]; if(!f) return;
-const url=URL.createObjectURL(f);
-données.pdfs.push({nom:f.name, url});
-afficherPDFs();
-saveData();
+  const input = document.getElementById("pdfInput");
+  const f = input.files[0];
+  if(!f) return;
+
+  // mémorise seulement le nom
+  données.pdfs.push({ nom: f.name, addedISO: nowISO() });
+  afficherPDFs();
+  saveData(false);
+
+  // ouvre immédiatement (temporaire), puis révoque
+  ouvrirFichierPDFTemporaire(f);
+
+  // reset input
+  input.value = "";
+}
+
+function ouvrirFichierPDFTemporaire(file){
+  const url = URL.createObjectURL(file);
+  // ouvre dans un nouvel onglet
+  window.open(url, "_blank");
+  // laisse un peu de temps pour que Safari charge, puis revoke
+  setTimeout(()=>{ URL.revokeObjectURL(url); }, 20000);
+}
+
+function demanderOuverturePDF(i){
+  // on stocke l’index demandé sur l’input caché
+  const openInput = document.getElementById("pdfOpenInput");
+  openInput.dataset.index = String(i);
+  openInput.click();
+}
+
+function ouvrirPDFSelectionne(e){
+  const openInput = document.getElementById("pdfOpenInput");
+  const idx = parseInt(openInput.dataset.index || "-1", 10);
+  const f = e.target.files[0];
+  if(!f) return;
+
+  // ouvre, même si le nom ne correspond pas (mais on peut prévenir)
+  if(idx >= 0 && données.pdfs[idx] && données.pdfs[idx].nom && f.name !== données.pdfs[idx].nom){
+    const ok = confirm("Le fichier sélectionné ne correspond pas au nom mémorisé.\n\nMémorisé : " + données.pdfs[idx].nom + "\nSélectionné : " + f.name + "\n\nOuvrir quand même ?");
+    if(!ok){ e.target.value=""; return; }
+  }
+
+  ouvrirFichierPDFTemporaire(f);
+
+  // reset
+  e.target.value = "";
 }
 
 function supprimerPDF(i){
-données.pdfs.splice(i,1);
-afficherPDFs();
-saveData();
+  données.pdfs.splice(i,1);
+  afficherPDFs();
+  saveData(false);
 }
 
 function afficherPDFs(){
-listePDF.innerHTML="";
-données.pdfs.forEach((p,i)=>{
-listePDF.innerHTML+=`
-<li>
-<a href="${p.url}" target="_blank">📄 ${p.nom}</a>
-<br>
-<button class="suppr" onclick="supprimerPDF(${i})">Supprimer</button>
-</li>`;
-});
+  const ul = document.getElementById("listePDF");
+  ul.innerHTML = "";
+
+  if(!données.pdfs.length){
+    ul.innerHTML = `<li class="petit">Aucun PDF mémorisé.</li>`;
+    return;
+  }
+
+  données.pdfs.forEach((p,i)=>{
+    const date = p.addedISO ? formatFR(p.addedISO) : "";
+    ul.innerHTML += `
+      <li style="margin-bottom:12px;">
+        <strong>📄 ${escapeHtml(p.nom || "PDF")}</strong><br>
+        <span class="petit">Ajouté : ${escapeHtml(date)}</span><br>
+        <button class="action" style="margin-top:6px;" onclick="demanderOuverturePDF(${i})">Ouvrir (re-sélectionner dans Fichiers)</button><br>
+        <button class="suppr" onclick="supprimerPDF(${i})">Supprimer</button>
+      </li>
+    `;
+  });
 }
 
-/* -------- Santé -------- */
+/* ================= Santé (FIX persistance) ================= */
+/* Ici, chaque champ met à jour données[...] en direct, puis autosave silencieux */
 function ajouterMaladie(){
-données.maladies.push({nom:"",date:"",remarque:""});
-afficherMaladies();
-saveData();
+  données.maladies.push({nom:"", date:"", remarque:""});
+  afficherMaladies();
+  saveData(false);
 }
-
 function supprimerMaladie(i){
-données.maladies.splice(i,1);
-afficherMaladies();
-saveData();
+  données.maladies.splice(i,1);
+  afficherMaladies();
+  saveData(false);
 }
-
 function afficherMaladies(){
-listeMaladies.innerHTML="";
-données.maladies.forEach((m,i)=>{
-listeMaladies.innerHTML+=`
-<input placeholder="Maladie" value="${m.nom}">
-<input type="date" value="${m.date}">
-<textarea>${m.remarque}</textarea>
-<button class="suppr" onclick="supprimerMaladie(${i})">Supprimer</button>
-<hr>`;
-});
+  const cont = document.getElementById("listeMaladies");
+  cont.innerHTML = "";
+  données.maladies.forEach((m,i)=>{
+    cont.innerHTML += `
+      <input placeholder="Maladie" value="${escapeAttr(m.nom||"")}"
+        oninput="données.maladies[${i}].nom=this.value; saveData(false)">
+      <input type="date" value="${escapeAttr(m.date||"")}"
+        onchange="données.maladies[${i}].date=this.value; saveData(false)">
+      <textarea oninput="données.maladies[${i}].remarque=this.value; saveData(false)">${escapeHtml(m.remarque||"")}</textarea>
+      <button class="suppr" onclick="supprimerMaladie(${i})">Supprimer</button>
+      <hr>
+    `;
+  });
 }
 
 function ajouterAccident(){
-données.accidents.push({type:"",date:"",suite:""});
-afficherAccidents();
-saveData();
+  données.accidents.push({type:"", date:"", suite:""});
+  afficherAccidents();
+  saveData(false);
 }
-
 function supprimerAccident(i){
-données.accidents.splice(i,1);
-afficherAccidents();
-saveData();
+  données.accidents.splice(i,1);
+  afficherAccidents();
+  saveData(false);
 }
-
 function afficherAccidents(){
-listeAccidents.innerHTML="";
-données.accidents.forEach((a,i)=>{
-listeAccidents.innerHTML+=`
-<input placeholder="Accident" value="${a.type}">
-<input type="date" value="${a.date}">
-<textarea>${a.suite}</textarea>
-<button class="suppr" onclick="supprimerAccident(${i})">Supprimer</button>
-<hr>`;
-});
+  const cont = document.getElementById("listeAccidents");
+  cont.innerHTML = "";
+  données.accidents.forEach((a,i)=>{
+    cont.innerHTML += `
+      <input placeholder="Accident" value="${escapeAttr(a.type||"")}"
+        oninput="données.accidents[${i}].type=this.value; saveData(false)">
+      <input type="date" value="${escapeAttr(a.date||"")}"
+        onchange="données.accidents[${i}].date=this.value; saveData(false)">
+      <textarea oninput="données.accidents[${i}].suite=this.value; saveData(false)">${escapeHtml(a.suite||"")}</textarea>
+      <button class="suppr" onclick="supprimerAccident(${i})">Supprimer</button>
+      <hr>
+    `;
+  });
 }
 
 function ajouterTraitement(){
-données.traitements.push({nom:"",debut:"",fin:"",posologie:""});
-afficherTraitements();
-saveData();
+  données.traitements.push({nom:"", debut:"", fin:"", posologie:""});
+  afficherTraitements();
+  saveData(false);
 }
-
 function supprimerTraitement(i){
-données.traitements.splice(i,1);
-afficherTraitements();
-saveData();
+  données.traitements.splice(i,1);
+  afficherTraitements();
+  saveData(false);
 }
-
 function afficherTraitements(){
-listeTraitements.innerHTML="";
-données.traitements.forEach((t,i)=>{
-listeTraitements.innerHTML+=`
-<input placeholder="Traitement" value="${t.nom}">
-<input type="date" value="${t.debut}">
-<input type="date" value="${t.fin}">
-<textarea>${t.posologie}</textarea>
-<button class="suppr" onclick="supprimerTraitement(${i})">Supprimer</button>
-<hr>`;
-});
+  const cont = document.getElementById("listeTraitements");
+  cont.innerHTML = "";
+  données.traitements.forEach((t,i)=>{
+    cont.innerHTML += `
+      <input placeholder="Traitement" value="${escapeAttr(t.nom||"")}"
+        oninput="données.traitements[${i}].nom=this.value; saveData(false)">
+      <label class="petit">Début</label>
+      <input type="date" value="${escapeAttr(t.debut||"")}"
+        onchange="données.traitements[${i}].debut=this.value; saveData(false)">
+      <label class="petit">Fin</label>
+      <input type="date" value="${escapeAttr(t.fin||"")}"
+        onchange="données.traitements[${i}].fin=this.value; saveData(false)">
+      <textarea placeholder="Posologie / remarque"
+        oninput="données.traitements[${i}].posologie=this.value; saveData(false)">${escapeHtml(t.posologie||"")}</textarea>
+      <button class="suppr" onclick="supprimerTraitement(${i})">Supprimer</button>
+      <hr>
+    `;
+  });
 }
 
-/* -------- Restauration -------- */
-window.onload=()=>{
-const s=JSON.parse(localStorage.getItem("chienData")||"{}");
-if(!s.fiche) return;
-Object.assign(données,s);
-Object.entries(données.fiche).forEach(([k,v])=>{
-const el=document.getElementById(k);
-if(el) el.value=v||"";
-});
-updateAge();
-afficherLiens();
-afficherPDFs();
-afficherMaladies();
-afficherAccidents();
-afficherTraitements();
+/* ================= Restauration au chargement ================= */
+window.onload = ()=>{
+  const s = safeParse(localStorage.getItem("chienData") || "{}", {});
+  if(s && typeof s === "object"){
+    données.fiche = s.fiche || {};
+    données.maladies = Array.isArray(s.maladies) ? s.maladies : [];
+    données.accidents = Array.isArray(s.accidents) ? s.accidents : [];
+    données.traitements = Array.isArray(s.traitements) ? s.traitements : [];
+    données.pdfs = Array.isArray(s.pdfs) ? s.pdfs : [];
+    données.liens = Array.isArray(s.liens) ? s.liens : [];
+  }
+
+  // Remplir la fiche
+  const f = données.fiche || {};
+  setVal("puce", f.puce);
+  setVal("passeport", f.passeport);
+  setVal("naissance", f.naissance);
+  setVal("poids", f.poids);
+  setVal("veto", f.veto);
+  setVal("tel", f.tel);
+  setVal("clinique", f.clinique);
+  setVal("nourriture", f.nourriture);
+  setVal("accessoires", f.accessoires);
+  setVal("autres", f.autres);
+
+  updateAge();
+
+  // Affichages
+  afficherLiens();
+  afficherPDFs();
+  afficherMaladies();
+  afficherAccidents();
+  afficherTraitements();
+
+  // Autosave quand on tape dans la fiche (optionnel mais pratique)
+  ["puce","passeport","poids","veto","tel","clinique","nourriture","accessoires","autres"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener("input", ()=>saveData(false));
+    }
+  });
 };
+
+function setVal(id, v){
+  const el = document.getElementById(id);
+  if(el) el.value = v || "";
+}
+
+/* ================= Sécurité affichage HTML ================= */
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function escapeAttr(str){
+  return escapeHtml(str).replaceAll("\n"," ");
+}
+
+/* ================= Format date FR ================= */
+function formatFR(iso){
+  try{
+    const d = new Date(iso);
+    if(isNaN(d.getTime())) return "";
+    const jj = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const aa = d.getFullYear();
+    return `${jj}/${mm}/${aa}`;
+  }catch{ return ""; }
+}
 </script>
 
 </body>
