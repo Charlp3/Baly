@@ -318,11 +318,22 @@ function ajouterPDF(){
 }
 
 function ouvrirFichierPDFTemporaire(file){
-  const url = URL.createObjectURL(file);
-  // ouvre dans un nouvel onglet
-  window.open(url, "_blank");
-  // laisse un peu de temps pour que Safari charge, puis revoke
-  setTimeout(()=>{ URL.revokeObjectURL(url); }, 20000);
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const win = window.open();
+    if (win) {
+      win.location.href = reader.result; // DataURL → OK iOS
+    } else {
+      alert("Autorise l’ouverture des fenêtres.");
+    }
+  };
+
+  reader.onerror = function () {
+    alert("Erreur lors de la lecture du PDF.");
+  };
+
+  reader.readAsDataURL(file);
 }
 
 function demanderOuverturePDF(i){
