@@ -3,34 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suivi Chien – v1.8</title>
+<title>Suivi de mon chien – v1.8</title>
+
 <style>
 body { font-family: Arial; margin: 0; background: #D0E4F7; color: #1C2A40; }
 header { background: #2C5E99; color: #fff; text-align: center; padding: 15px; }
 nav { display: flex; background: #1C3B68; flex-wrap: wrap; }
 nav button {
-  flex: 1 1 25%; padding: 12px; background: #1C3B68; color: white;
-  border: none; font-size: 1rem; cursor: pointer;
+  flex: 1 1 25%;
+  padding: 12px;
+  background: #1C3B68;
+  color: white;
+  border: none;
+  font-size: 1rem;
 }
-nav button.active { background: #D0E4F7; color: #1C3B68; font-weight: bold; }
+nav button.active {
+  background: #D0E4F7;
+  color: #1C3B68;
+  font-weight: bold;
+}
 section { display: none; padding: 20px; }
 section.active { display: block; }
 label { display: block; margin-top: 10px; font-weight: bold; }
 input, textarea {
-  width: 100%; padding: 8px; margin-top: 4px;
-  border-radius: 4px; border: 1px solid #587EA3;
-  background-color: #F0F8FF; font-size: 1rem;
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #587EA3;
+  background: #F0F8FF;
 }
 button.action {
-  margin-top: 15px;
-  background-color: #2C5E99;
+  margin-top: 12px;
+  padding: 10px 15px;
+  background: #2C5E99;
   color: white;
   border: none;
-  padding: 10px 15px;
   border-radius: 5px;
-  cursor: pointer;
 }
 hr { margin: 20px 0; }
+a { color: #1C3B68; }
 </style>
 </head>
 
@@ -52,12 +64,13 @@ Suivi de mon chien 🐾<br>
 
 <main>
 
+<!-- FICHE -->
 <section id="fiche" class="active">
-<label>Numéro de puce</label><input id="puce">
-<label>Numéro de passeport</label><input id="passeport">
+<label>Puce</label><input id="puce">
+<label>Passeport</label><input id="passeport">
 <label>Date de naissance</label><input type="date" id="naissance" onchange="updateAge()">
 <div><strong>Âge :</strong> <span id="age">-</span></div>
-<label>Poids (kg)</label><input type="number" id="poids">
+<label>Poids</label><input type="number" id="poids">
 <label>Vétérinaire</label><input id="veto">
 <label>Téléphone</label><input id="tel">
 <label>Clinique</label><input id="clinique">
@@ -68,36 +81,44 @@ Suivi de mon chien 🐾<br>
 <button class="action" onclick="saveData()">💾 Sauvegarder</button>
 <button class="action" onclick="exportData()">📤 Exporter JSON</button>
 
-<input type="file" id="importInput" accept="application/json" style="display:none" onchange="importData(event)">
+<input type="file" id="importInput" accept="application/json" hidden onchange="importData(event)">
 <button class="action" onclick="importInput.click()">📥 Importer</button>
 </section>
 
+<!-- MEDICAMENTS -->
 <section id="medicaments">
 <h3>Médicaments</h3>
 <div id="listeMeds"></div>
 <button class="action" onclick="ajouterMedicament()">+ Ajouter</button>
 </section>
 
+<!-- VACCINS -->
 <section id="vaccins">
 <h3>Vaccins</h3>
 <div id="listeVaccins"></div>
 <button class="action" onclick="ajouterVaccin()">+ Ajouter</button>
 </section>
 
+<!-- SANTE -->
 <section id="sante">
 <h3>Maladies</h3>
 <div id="listeMaladies"></div>
 <button class="action" onclick="ajouterMaladie()">+ Ajouter</button>
+
 <hr>
+
 <h3>Accidents</h3>
 <div id="listeAccidents"></div>
 <button class="action" onclick="ajouterAccident()">+ Ajouter</button>
+
 <hr>
+
 <h3>Traitements</h3>
 <div id="listeTraitements"></div>
 <button class="action" onclick="ajouterTraitement()">+ Ajouter</button>
 </section>
 
+<!-- PDF -->
 <section id="pdf">
 <h3>Passeport PDF</h3>
 <input type="file" id="pdfInput" accept="application/pdf">
@@ -105,10 +126,19 @@ Suivi de mon chien 🐾<br>
 <ul id="listePDF"></ul>
 </section>
 
+<!-- LIENS -->
 <section id="liens">
-<h3>Liens Internet</h3>
+<h3>Liens Web</h3>
+
+<div>
+<input id="nomLien" placeholder="Nom">
+<input id="urlLien" placeholder="URL (https://...)">
+<button class="action" onclick="enregistrerLien()">✔ Ajouter le lien</button>
+</div>
+
+<hr>
+
 <div id="listeLiens"></div>
-<button class="action" onclick="ajouterLien()">+ Ajouter</button>
 </section>
 
 </main>
@@ -160,65 +190,54 @@ const r=new FileReader();
 r.onload=()=>{
 try{
 const j=JSON.parse(r.result);
-const d={
+Object.assign(données,{
 fiche:j.fiche||{}, meds:j.meds||[], vaccins:j.vaccins||[],
-maladies:j.maladies||[], accidents:j.accidents||[], traitements:j.traitements||[],
-pdfs:j.pdfs||[], liens:j.liens||[]
-};
-localStorage.setItem("chienData",JSON.stringify(d));
+maladies:j.maladies||[], accidents:j.accidents||[],
+traitements:j.traitements||[], pdfs:j.pdfs||[], liens:j.liens||[]
+});
+localStorage.setItem("chienData",JSON.stringify(données));
 location.reload();
 }catch{alert("❌ Fichier invalide");}
 };
 r.readAsText(f);
 }
 
-/* Fonctions ajout */
-function ajouterChamp(arr,obj,html,container){
-const i=arr.push(obj)-1;
-const d=document.createElement("div");
-d.innerHTML=html(i);
-container.appendChild(d);
-}
+/* ---- AJOUTS ---- */
 
 function ajouterMedicament(n="",d="",l=""){
-ajouterChamp(données.meds,{nom:n,date:d,lien:l},
-i=>`<input value="${n}" placeholder="Nom" onchange="données.meds[${i}].nom=this.value">
-<input type="date" value="${d}" onchange="données.meds[${i}].date=this.value">
-<input value="${l}" placeholder="Lien" onchange="données.meds[${i}].lien=this.value"><hr>`,
-listeMeds);
+données.meds.push({nom:n,date:d,lien:l});
+listeMeds.innerHTML+=`<input value="${n}" placeholder="Nom">
+<input type="date" value="${d}">
+<input value="${l}" placeholder="Lien"><hr>`;
 }
 
 function ajouterVaccin(n="",d="",l=""){
-ajouterChamp(données.vaccins,{nom:n,date:d,lien:l},
-i=>`<input value="${n}" placeholder="Nom" onchange="données.vaccins[${i}].nom=this.value">
-<input type="date" value="${d}" onchange="données.vaccins[${i}].date=this.value">
-<input value="${l}" placeholder="Lien" onchange="données.vaccins[${i}].lien=this.value"><hr>`,
-listeVaccins);
+données.vaccins.push({nom:n,date:d,lien:l});
+listeVaccins.innerHTML+=`<input value="${n}">
+<input type="date" value="${d}">
+<input value="${l}"><hr>`;
 }
 
 function ajouterMaladie(n="",d="",r=""){
-ajouterChamp(données.maladies,{nom:n,date:d,remarque:r},
-i=>`<input value="${n}" placeholder="Maladie" onchange="données.maladies[${i}].nom=this.value">
-<input type="date" value="${d}" onchange="données.maladies[${i}].date=this.value">
-<textarea onchange="données.maladies[${i}].remarque=this.value">${r}</textarea><hr>`,
-listeMaladies);
+données.maladies.push({nom:n,date:d,remarque:r});
+listeMaladies.innerHTML+=`<input value="${n}">
+<input type="date" value="${d}">
+<textarea>${r}</textarea><hr>`;
 }
 
 function ajouterAccident(t="",d="",s=""){
-ajouterChamp(données.accidents,{type:t,date:d,suite:s},
-i=>`<input value="${t}" placeholder="Accident" onchange="données.accidents[${i}].type=this.value">
-<input type="date" value="${d}" onchange="données.accidents[${i}].date=this.value">
-<textarea onchange="données.accidents[${i}].suite=this.value">${s}</textarea><hr>`,
-listeAccidents);
+données.accidents.push({type:t,date:d,suite:s});
+listeAccidents.innerHTML+=`<input value="${t}">
+<input type="date" value="${d}">
+<textarea>${s}</textarea><hr>`;
 }
 
 function ajouterTraitement(n="",db="",df="",p=""){
-ajouterChamp(données.traitements,{nom:n,debut:db,fin:df,posologie:p},
-i=>`<input value="${n}" placeholder="Traitement" onchange="données.traitements[${i}].nom=this.value">
-<label>Début</label><input type="date" value="${db}" onchange="données.traitements[${i}].debut=this.value">
-<label>Fin</label><input type="date" value="${df}" onchange="données.traitements[${i}].fin=this.value">
-<textarea onchange="données.traitements[${i}].posologie=this.value">${p}</textarea><hr>`,
-listeTraitements);
+données.traitements.push({nom:n,debut:db,fin:df,posologie:p});
+listeTraitements.innerHTML+=`<input value="${n}">
+<input type="date" value="${db}">
+<input type="date" value="${df}">
+<textarea>${p}</textarea><hr>`;
 }
 
 function ajouterPDF(){
@@ -228,11 +247,21 @@ listePDF.innerHTML+=`<li>${pdfInput.files[0].name}</li>`;
 }
 }
 
-function ajouterLien(n="",u=""){
-ajouterChamp(données.liens,{nom:n,url:u},
-i=>`<input value="${n}" placeholder="Nom" onchange="données.liens[${i}].nom=this.value">
-<input value="${u}" placeholder="URL" onchange="données.liens[${i}].url=this.value"><hr>`,
-listeLiens);
+/* ---- LIENS WEB (CORRIGÉ) ---- */
+
+function enregistrerLien(){
+if(!urlLien.value) return;
+données.liens.push({nom:nomLien.value||urlLien.value,url:urlLien.value});
+nomLien.value=""; urlLien.value="";
+afficherLiens();
+}
+
+function afficherLiens(){
+listeLiens.innerHTML="";
+données.liens.forEach(l=>{
+listeLiens.innerHTML+=`<strong>${l.nom}</strong><br>
+<a href="${l.url}" target="_blank">${l.url}</a><hr>`;
+});
 }
 
 window.onload=()=>{
@@ -247,7 +276,7 @@ données.maladies.forEach(m=>ajouterMaladie(m.nom,m.date,m.remarque));
 données.accidents.forEach(a=>ajouterAccident(a.type,a.date,a.suite));
 données.traitements.forEach(t=>ajouterTraitement(t.nom,t.debut,t.fin,t.posologie));
 données.pdfs.forEach(p=>listePDF.innerHTML+=`<li>${p}</li>`);
-données.liens.forEach(l=>ajouterLien(l.nom,l.url));
+afficherLiens();
 };
 </script>
 
