@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suivi de mon chien – v1.9d</title>
+<title>Suivi de mon chien – v1.9e</title>
 
 <style>
   body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
@@ -66,6 +66,7 @@
   a { color:#1C3B68; word-break:break-all; }
 
   .ligne { margin-bottom:10px; }
+  .petit { font-size:0.9rem; opacity:0.85; }
 </style>
 </head>
 
@@ -73,7 +74,7 @@
 
 <header>
   Suivi de mon chien 🐶<br>
-  <small>© Pierre Charlier 2025 — Version 1.9d</small>
+  <small>© Pierre Charlier 2025 — Version 1.9e</small>
 </header>
 
 <nav>
@@ -101,6 +102,17 @@
   <label>Nourriture</label><textarea id="nourriture"></textarea>
   <label>Accessoires</label><textarea id="accessoires"></textarea>
   <label>Autres</label><textarea id="autres"></textarea>
+
+  <hr>
+
+  <label>📄 Document PDF (ex. passeport)</label>
+  <div class="petit" id="pdfInfo">Aucun PDF sélectionné</div>
+
+  <input type="file" id="pdfInput" accept="application/pdf" hidden>
+  <button class="action" onclick="choisirPDF()">➕ Choisir / remplacer le PDF</button>
+  <button class="action" onclick="ouvrirPDF()">📂 Ouvrir le PDF (via Fichiers)</button>
+
+  <hr>
 
   <button class="action" onclick="saveData(true)">💾 Sauvegarder</button>
   <button class="action" onclick="exportData()">📤 Exporter JSON</button>
@@ -144,9 +156,11 @@ const données = {
   maladies:[],
   accidents:[],
   traitements:[],
-  liens:[]
+  liens:[],
+  pdfNom:null
 };
 
+/* ---------- Navigation ---------- */
 function showTab(id, btn){
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
@@ -154,6 +168,7 @@ function showTab(id, btn){
   if(btn) btn.classList.add("active");
 }
 
+/* ---------- Âge ---------- */
 function updateAge(){
   if(!naissance.value){ age.textContent="-"; return; }
   const b=new Date(naissance.value), n=new Date();
@@ -162,6 +177,30 @@ function updateAge(){
   age.textContent = a + " an" + (a>1?"s":"");
 }
 
+/* ---------- PDF ---------- */
+function choisirPDF(){
+  document.getElementById("pdfInput").click();
+}
+
+pdfInput.onchange = ()=>{
+  const f = pdfInput.files[0];
+  if(!f) return;
+  données.pdfNom = f.name;
+  saveData(false);
+  afficherPDFInfo();
+  alert("PDF sélectionné :\n" + f.name);
+  pdfInput.value="";
+};
+
+function ouvrirPDF(){
+  alert(
+    données.pdfNom
+      ? "Sélectionne le fichier « " + données.pdfNom + " » dans Fichiers."
+      : "Aucun PDF mémorisé."
+  );
+}
+
+/* ---------- Sauvegarde ---------- */
 function saveData(showAlert=true){
   données.fiche={
     puce:puce.value,passeport:passeport.value,naissance:naissance.value,
@@ -195,7 +234,7 @@ function importData(e){
   r.readAsText(f);
 }
 
-/* -------- Liens -------- */
+/* ---------- Liens ---------- */
 function ajouterLien(){
   if(!urlLien.value) return;
   données.liens.push({nom:nomLien.value||urlLien.value, url:urlLien.value});
@@ -219,7 +258,7 @@ function afficherLiens(){
   });
 }
 
-/* -------- Santé -------- */
+/* ---------- Santé ---------- */
 function ajouterMaladie(){
   données.maladies.push({nom:"",date:"",remarque:""});
   afficherMaladies(); saveData(false);
@@ -281,6 +320,13 @@ function afficherTraitements(){
   });
 }
 
+/* ---------- Init ---------- */
+function afficherPDFInfo(){
+  pdfInfo.textContent = données.pdfNom
+    ? "PDF mémorisé : " + données.pdfNom
+    : "Aucun PDF sélectionné";
+}
+
 window.onload=()=>{
   const s=JSON.parse(localStorage.getItem("chienData")||"{}");
   if(!s.fiche) return;
@@ -290,6 +336,7 @@ window.onload=()=>{
     if(el) el.value=v||"";
   });
   updateAge();
+  afficherPDFInfo();
   afficherLiens();
   afficherMaladies();
   afficherAccidents();
