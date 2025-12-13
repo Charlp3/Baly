@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suivi de mon chien – v1.9c</title>
+<title>Suivi de mon chien – v1.9d</title>
 
 <style>
   body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
@@ -11,7 +11,7 @@
 
   nav { display:flex; background:#1C3B68; flex-wrap:wrap; }
   nav button{
-    flex:1 1 25%;
+    flex:1 1 33%;
     padding:12px;
     background:#1C3B68;
     color:#fff;
@@ -39,7 +39,6 @@
     box-sizing:border-box;
   }
 
-  /* 🔠 FICHE : polices agrandies */
   #fiche label { font-size:1.1rem; }
   #fiche input, #fiche textarea { font-size:1.15rem; padding:10px; }
 
@@ -62,14 +61,11 @@
     font-size:0.8rem;
     margin-top:6px;
   }
-  button.suppr:active { background:#922B21; }
 
   hr { margin:18px 0; }
   a { color:#1C3B68; word-break:break-all; }
 
   .ligne { margin-bottom:10px; }
-  .note { font-size:0.95rem; opacity:0.9; margin-top:6px; }
-  .petit { font-size:0.92rem; opacity:0.9; }
 </style>
 </head>
 
@@ -77,13 +73,12 @@
 
 <header>
   Suivi de mon chien 🐾<br>
-  <small>© Pierre Charlier 2025 — Version 1.9c</small>
+  <small>© Pierre Charlier 2025 — Version 1.9d</small>
 </header>
 
 <nav>
   <button class="active" onclick="showTab('fiche', this)">Fiche</button>
   <button onclick="showTab('sante', this)">Santé</button>
-  <button onclick="showTab('pdf', this)">Passeport PDF</button>
   <button onclick="showTab('liens', this)">Liens Web</button>
 </nav>
 
@@ -131,27 +126,6 @@
   <button class="action" onclick="ajouterTraitement()">+ Ajouter</button>
 </section>
 
-<!-- ================= PDF ================= -->
-<section id="pdf">
-  <h3>Passeport PDF</h3>
-
-  <div class="petit">
-    Sur iPhone/iPad, une page web ne peut pas conserver l’accès direct à un PDF de l’app <b>Fichiers</b> après fermeture.
-    Donc : on peut <b>l’ouvrir maintenant</b>, et pour le rouvrir plus tard il faudra <b>le re-sélectionner</b> depuis Fichiers.
-  </div>
-
-  <hr>
-
-  <label>Sélectionner un PDF (Fichiers)</label>
-  <input type="file" id="pdfInput" accept="application/pdf">
-  <button class="action" onclick="ajouterPDF()">+ Ajouter (mémo) & Ouvrir</button>
-
-  <!-- input caché utilisé pour "Ouvrir" un PDF plus tard -->
-  <input type="file" id="pdfOpenInput" accept="application/pdf" hidden onchange="ouvrirPDFSelectionne(event)">
-
-  <ul id="listePDF"></ul>
-</section>
-
 <!-- ================= LIENS ================= -->
 <section id="liens">
   <h3>Liens Web</h3>
@@ -165,17 +139,14 @@
 </main>
 
 <script>
-/* ================= Données ================= */
 const données = {
   fiche:{},
   maladies:[],
   accidents:[],
   traitements:[],
-  pdfs:[],   // { nom, addedISO }
   liens:[]
 };
 
-/* ================= Navigation ================= */
 function showTab(id, btn){
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
@@ -183,374 +154,147 @@ function showTab(id, btn){
   if(btn) btn.classList.add("active");
 }
 
-/* ================= Utilitaires ================= */
-function nowISO(){ return new Date().toISOString(); }
-
-function safeParse(json, fallback){
-  try { return JSON.parse(json); } catch { return fallback; }
-}
-
-/* ================= Âge ================= */
 function updateAge(){
-  const naissanceEl = document.getElementById("naissance");
-  const ageEl = document.getElementById("age");
-  if(!naissanceEl.value){ ageEl.textContent = "-"; return; }
-
-  const b = new Date(naissanceEl.value);
-  const n = new Date();
-  let a = n.getFullYear() - b.getFullYear();
-  if(n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--;
-  ageEl.textContent = a + " an" + (a>1 ? "s" : "");
+  if(!naissance.value){ age.textContent="-"; return; }
+  const b=new Date(naissance.value), n=new Date();
+  let a=n.getFullYear()-b.getFullYear();
+  if(n.getMonth()<b.getMonth() || (n.getMonth()==b.getMonth() && n.getDate()<b.getDate())) a--;
+  age.textContent = a + " an" + (a>1?"s":"");
 }
 
-/* ================= Sauvegarde ================= */
-/* showAlert=false => autosauvegarde silencieuse (évite "Données sauvegardées" quand tu cliques sur Ajouter) */
 function saveData(showAlert=true){
-  // fiche
-  données.fiche = {
-    puce:document.getElementById("puce").value,
-    passeport:document.getElementById("passeport").value,
-    naissance:document.getElementById("naissance").value,
-    poids:document.getElementById("poids").value,
-    veto:document.getElementById("veto").value,
-    tel:document.getElementById("tel").value,
-    clinique:document.getElementById("clinique").value,
-    nourriture:document.getElementById("nourriture").value,
-    accessoires:document.getElementById("accessoires").value,
-    autres:document.getElementById("autres").value
+  données.fiche={
+    puce:puce.value,passeport:passeport.value,naissance:naissance.value,
+    poids:poids.value,veto:veto.value,tel:tel.value,clinique:clinique.value,
+    nourriture:nourriture.value,accessoires:accessoires.value,autres:autres.value
   };
-
-  localStorage.setItem("chienData", JSON.stringify(données));
-
+  localStorage.setItem("chienData",JSON.stringify(données));
   if(showAlert) alert("✔ Données sauvegardées");
 }
 
 function exportData(){
-  const blob = new Blob([JSON.stringify(données,null,2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "chien_sauvegarde.json";
+  const blob=new Blob([JSON.stringify(données,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="chien_sauvegarde.json";
   a.click();
   URL.revokeObjectURL(a.href);
 }
 
 function importData(e){
-  const f = e.target.files[0];
-  if(!f) return;
-
-  const r = new FileReader();
-  r.onload = ()=>{
-    const obj = safeParse(r.result, null);
-    if(!obj || typeof obj !== "object"){ alert("❌ Fichier invalide"); return; }
-
-    // Fusion contrôlée
-    données.fiche = obj.fiche || {};
-    données.maladies = Array.isArray(obj.maladies) ? obj.maladies : [];
-    données.accidents = Array.isArray(obj.accidents) ? obj.accidents : [];
-    données.traitements = Array.isArray(obj.traitements) ? obj.traitements : [];
-    données.pdfs = Array.isArray(obj.pdfs) ? obj.pdfs : [];
-    données.liens = Array.isArray(obj.liens) ? obj.liens : [];
-
-    localStorage.setItem("chienData", JSON.stringify(données));
-    alert("✔ Importation réussie");
-    location.reload();
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      Object.assign(données, JSON.parse(r.result));
+      localStorage.setItem("chienData",JSON.stringify(données));
+      alert("✔ Importation réussie");
+      location.reload();
+    }catch{ alert("❌ Fichier invalide"); }
   };
   r.readAsText(f);
 }
 
-/* ================= Liens Web ================= */
+/* -------- Liens -------- */
 function ajouterLien(){
-  const nom = document.getElementById("nomLien").value.trim();
-  const url = document.getElementById("urlLien").value.trim();
-  if(!url) return;
-
-  données.liens.push({nom: nom || url, url});
-  document.getElementById("nomLien").value = "";
-  document.getElementById("urlLien").value = "";
-
-  afficherLiens();
-  saveData(false);
+  if(!urlLien.value) return;
+  données.liens.push({nom:nomLien.value||urlLien.value, url:urlLien.value});
+  nomLien.value=""; urlLien.value="";
+  afficherLiens(); saveData(false);
 }
-
 function supprimerLien(i){
   données.liens.splice(i,1);
-  afficherLiens();
-  saveData(false);
+  afficherLiens(); saveData(false);
 }
-
 function afficherLiens(){
-  const cont = document.getElementById("listeLiens");
-  cont.innerHTML = "";
+  listeLiens.innerHTML="";
   données.liens.forEach((l,i)=>{
-    cont.innerHTML += `
+    listeLiens.innerHTML+=`
       <div class="ligne">
-        <strong>${escapeHtml(l.nom)}</strong><br>
-        <a href="${escapeAttr(l.url)}" target="_blank" rel="noopener">${escapeHtml(l.url)}</a><br>
+        <strong>${l.nom}</strong><br>
+        <a href="${l.url}" target="_blank">${l.url}</a><br>
         <button class="suppr" onclick="supprimerLien(${i})">Supprimer</button>
         <hr>
-      </div>
-    `;
+      </div>`;
   });
 }
 
-/* ================= PDF (correction iOS) ================= */
-/*
-  IMPORTANT :
-  - Ne plus stocker de URL.createObjectURL(blob) dans les données (ça meurt à la fermeture).
-  - On mémorise seulement le NOM (et une date d’ajout).
-  - Pour ouvrir plus tard : on redemande le fichier via Fichiers (sélecteur).
-*/
-function ajouterPDF(){
-  const input = document.getElementById("pdfInput");
-  const f = input.files[0];
-  if(!f) return;
-
-  // mémorise seulement le nom
-  données.pdfs.push({ nom: f.name, addedISO: nowISO() });
-  afficherPDFs();
-  saveData(false);
-
-  // ouvre immédiatement (temporaire), puis révoque
-  ouvrirFichierPDFTemporaire(f);
-
-  // reset input
-  input.value = "";
-}
-
-function ouvrirFichierPDFTemporaire(file){
-  // 1️⃣ OUVERTURE IMMÉDIATE (autorisé par iOS)
-  const win = window.open("", "_blank");
-  if (!win) {
-    alert("Autorise l’ouverture des fenêtres.");
-    return;
-  }
-
-  // 2️⃣ Lecture du PDF
-  const reader = new FileReader();
-
-  reader.onload = function () {
-    // 3️⃣ Injection du PDF dans la fenêtre déjà ouverte
-    win.location.href = reader.result;
-  };
-
-  reader.onerror = function () {
-    win.close();
-    alert("Erreur lors de la lecture du PDF.");
-  };
-
-  reader.readAsDataURL(file);
-}
-
-function demanderOuverturePDF(i){
-  // on stocke l’index demandé sur l’input caché
-  const openInput = document.getElementById("pdfOpenInput");
-  openInput.dataset.index = String(i);
-  openInput.click();
-}
-
-function ouvrirPDFSelectionne(e){
-  const openInput = document.getElementById("pdfOpenInput");
-  const idx = parseInt(openInput.dataset.index || "-1", 10);
-  const f = e.target.files[0];
-  if(!f) return;
-
-  // ouvre, même si le nom ne correspond pas (mais on peut prévenir)
-  if(idx >= 0 && données.pdfs[idx] && données.pdfs[idx].nom && f.name !== données.pdfs[idx].nom){
-    const ok = confirm("Le fichier sélectionné ne correspond pas au nom mémorisé.\n\nMémorisé : " + données.pdfs[idx].nom + "\nSélectionné : " + f.name + "\n\nOuvrir quand même ?");
-    if(!ok){ e.target.value=""; return; }
-  }
-
-  ouvrirFichierPDFTemporaire(f);
-
-  // reset
-  e.target.value = "";
-}
-
-function supprimerPDF(i){
-  données.pdfs.splice(i,1);
-  afficherPDFs();
-  saveData(false);
-}
-
-function afficherPDFs(){
-  const ul = document.getElementById("listePDF");
-  ul.innerHTML = "";
-
-  if(!données.pdfs.length){
-    ul.innerHTML = `<li class="petit">Aucun PDF mémorisé.</li>`;
-    return;
-  }
-
-  données.pdfs.forEach((p,i)=>{
-    const date = p.addedISO ? formatFR(p.addedISO) : "";
-    ul.innerHTML += `
-      <li style="margin-bottom:12px;">
-        <strong>📄 ${escapeHtml(p.nom || "PDF")}</strong><br>
-        <span class="petit">Ajouté : ${escapeHtml(date)}</span><br>
-        <button class="action" style="margin-top:6px;" onclick="demanderOuverturePDF(${i})">Ouvrir (re-sélectionner dans Fichiers)</button><br>
-        <button class="suppr" onclick="supprimerPDF(${i})">Supprimer</button>
-      </li>
-    `;
-  });
-}
-
-/* ================= Santé (FIX persistance) ================= */
-/* Ici, chaque champ met à jour données[...] en direct, puis autosave silencieux */
+/* -------- Santé -------- */
 function ajouterMaladie(){
-  données.maladies.push({nom:"", date:"", remarque:""});
-  afficherMaladies();
-  saveData(false);
+  données.maladies.push({nom:"",date:"",remarque:""});
+  afficherMaladies(); saveData(false);
 }
 function supprimerMaladie(i){
   données.maladies.splice(i,1);
-  afficherMaladies();
-  saveData(false);
+  afficherMaladies(); saveData(false);
 }
 function afficherMaladies(){
-  const cont = document.getElementById("listeMaladies");
-  cont.innerHTML = "";
+  listeMaladies.innerHTML="";
   données.maladies.forEach((m,i)=>{
-    cont.innerHTML += `
-      <input placeholder="Maladie" value="${escapeAttr(m.nom||"")}"
-        oninput="données.maladies[${i}].nom=this.value; saveData(false)">
-      <input type="date" value="${escapeAttr(m.date||"")}"
-        onchange="données.maladies[${i}].date=this.value; saveData(false)">
-      <textarea oninput="données.maladies[${i}].remarque=this.value; saveData(false)">${escapeHtml(m.remarque||"")}</textarea>
+    listeMaladies.innerHTML+=`
+      <input placeholder="Maladie" value="${m.nom}">
+      <input type="date" value="${m.date}">
+      <textarea>${m.remarque}</textarea>
       <button class="suppr" onclick="supprimerMaladie(${i})">Supprimer</button>
-      <hr>
-    `;
+      <hr>`;
   });
 }
 
 function ajouterAccident(){
-  données.accidents.push({type:"", date:"", suite:""});
-  afficherAccidents();
-  saveData(false);
+  données.accidents.push({type:"",date:"",suite:""});
+  afficherAccidents(); saveData(false);
 }
 function supprimerAccident(i){
   données.accidents.splice(i,1);
-  afficherAccidents();
-  saveData(false);
+  afficherAccidents(); saveData(false);
 }
 function afficherAccidents(){
-  const cont = document.getElementById("listeAccidents");
-  cont.innerHTML = "";
+  listeAccidents.innerHTML="";
   données.accidents.forEach((a,i)=>{
-    cont.innerHTML += `
-      <input placeholder="Accident" value="${escapeAttr(a.type||"")}"
-        oninput="données.accidents[${i}].type=this.value; saveData(false)">
-      <input type="date" value="${escapeAttr(a.date||"")}"
-        onchange="données.accidents[${i}].date=this.value; saveData(false)">
-      <textarea oninput="données.accidents[${i}].suite=this.value; saveData(false)">${escapeHtml(a.suite||"")}</textarea>
+    listeAccidents.innerHTML+=`
+      <input placeholder="Accident" value="${a.type}">
+      <input type="date" value="${a.date}">
+      <textarea>${a.suite}</textarea>
       <button class="suppr" onclick="supprimerAccident(${i})">Supprimer</button>
-      <hr>
-    `;
+      <hr>`;
   });
 }
 
 function ajouterTraitement(){
-  données.traitements.push({nom:"", debut:"", fin:"", posologie:""});
-  afficherTraitements();
-  saveData(false);
+  données.traitements.push({nom:"",debut:"",fin:"",posologie:""});
+  afficherTraitements(); saveData(false);
 }
 function supprimerTraitement(i){
   données.traitements.splice(i,1);
-  afficherTraitements();
-  saveData(false);
+  afficherTraitements(); saveData(false);
 }
 function afficherTraitements(){
-  const cont = document.getElementById("listeTraitements");
-  cont.innerHTML = "";
+  listeTraitements.innerHTML="";
   données.traitements.forEach((t,i)=>{
-    cont.innerHTML += `
-      <input placeholder="Traitement" value="${escapeAttr(t.nom||"")}"
-        oninput="données.traitements[${i}].nom=this.value; saveData(false)">
-      <label class="petit">Début</label>
-      <input type="date" value="${escapeAttr(t.debut||"")}"
-        onchange="données.traitements[${i}].debut=this.value; saveData(false)">
-      <label class="petit">Fin</label>
-      <input type="date" value="${escapeAttr(t.fin||"")}"
-        onchange="données.traitements[${i}].fin=this.value; saveData(false)">
-      <textarea placeholder="Posologie / remarque"
-        oninput="données.traitements[${i}].posologie=this.value; saveData(false)">${escapeHtml(t.posologie||"")}</textarea>
+    listeTraitements.innerHTML+=`
+      <input placeholder="Traitement" value="${t.nom}">
+      <input type="date" value="${t.debut}">
+      <input type="date" value="${t.fin}">
+      <textarea>${t.posologie}</textarea>
       <button class="suppr" onclick="supprimerTraitement(${i})">Supprimer</button>
-      <hr>
-    `;
+      <hr>`;
   });
 }
 
-/* ================= Restauration au chargement ================= */
-window.onload = ()=>{
-  const s = safeParse(localStorage.getItem("chienData") || "{}", {});
-  if(s && typeof s === "object"){
-    données.fiche = s.fiche || {};
-    données.maladies = Array.isArray(s.maladies) ? s.maladies : [];
-    données.accidents = Array.isArray(s.accidents) ? s.accidents : [];
-    données.traitements = Array.isArray(s.traitements) ? s.traitements : [];
-    données.pdfs = Array.isArray(s.pdfs) ? s.pdfs : [];
-    données.liens = Array.isArray(s.liens) ? s.liens : [];
-  }
-
-  // Remplir la fiche
-  const f = données.fiche || {};
-  setVal("puce", f.puce);
-  setVal("passeport", f.passeport);
-  setVal("naissance", f.naissance);
-  setVal("poids", f.poids);
-  setVal("veto", f.veto);
-  setVal("tel", f.tel);
-  setVal("clinique", f.clinique);
-  setVal("nourriture", f.nourriture);
-  setVal("accessoires", f.accessoires);
-  setVal("autres", f.autres);
-
+window.onload=()=>{
+  const s=JSON.parse(localStorage.getItem("chienData")||"{}");
+  if(!s.fiche) return;
+  Object.assign(données,s);
+  Object.entries(données.fiche).forEach(([k,v])=>{
+    const el=document.getElementById(k);
+    if(el) el.value=v||"";
+  });
   updateAge();
-
-  // Affichages
   afficherLiens();
-  afficherPDFs();
   afficherMaladies();
   afficherAccidents();
   afficherTraitements();
-
-  // Autosave quand on tape dans la fiche (optionnel mais pratique)
-  ["puce","passeport","poids","veto","tel","clinique","nourriture","accessoires","autres"].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el){
-      el.addEventListener("input", ()=>saveData(false));
-    }
-  });
 };
-
-function setVal(id, v){
-  const el = document.getElementById(id);
-  if(el) el.value = v || "";
-}
-
-/* ================= Sécurité affichage HTML ================= */
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function escapeAttr(str){
-  return escapeHtml(str).replaceAll("\n"," ");
-}
-
-/* ================= Format date FR ================= */
-function formatFR(iso){
-  try{
-    const d = new Date(iso);
-    if(isNaN(d.getTime())) return "";
-    const jj = String(d.getDate()).padStart(2,"0");
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const aa = d.getFullYear();
-    return `${jj}/${mm}/${aa}`;
-  }catch{ return ""; }
-}
 </script>
 
 </body>
