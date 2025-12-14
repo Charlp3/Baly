@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suivi de mon chien – v1.9d</title>
+<title>Suivi de mon chien – v2.0</title>
 
 <style>
   body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
@@ -64,7 +64,6 @@
 
   hr { margin:18px 0; }
   a { color:#1C3B68; word-break:break-all; }
-
   .ligne { margin-bottom:10px; }
 </style>
 </head>
@@ -109,7 +108,7 @@
   <button class="action" onclick="document.getElementById('importInput').click()">📥 Importer</button>
 </section>
 
-<!-- ================= SANTE ================= -->
+<!-- ================= SANTÉ ================= -->
 <section id="sante">
   <h3>Maladies</h3>
   <div id="listeMaladies"></div>
@@ -195,7 +194,7 @@ function importData(e){
   r.readAsText(f);
 }
 
-/* -------- Liens -------- */
+/* -------- LIENS -------- */
 function ajouterLien(){
   if(!urlLien.value) return;
   données.liens.push({nom:nomLien.value||urlLien.value, url:urlLien.value});
@@ -203,6 +202,7 @@ function ajouterLien(){
   afficherLiens(); saveData(false);
 }
 function supprimerLien(i){
+  if(!confirm("Supprimer ce lien ?")) return;
   données.liens.splice(i,1);
   afficherLiens(); saveData(false);
 }
@@ -219,12 +219,13 @@ function afficherLiens(){
   });
 }
 
-/* -------- Santé -------- */
+/* -------- SANTÉ -------- */
 function ajouterMaladie(){
   données.maladies.push({nom:"",date:"",remarque:""});
   afficherMaladies(); saveData(false);
 }
 function supprimerMaladie(i){
+  if(!confirm("Supprimer cette maladie ?")) return;
   données.maladies.splice(i,1);
   afficherMaladies(); saveData(false);
 }
@@ -245,6 +246,7 @@ function ajouterAccident(){
   afficherAccidents(); saveData(false);
 }
 function supprimerAccident(i){
+  if(!confirm("Supprimer cet accident ?")) return;
   données.accidents.splice(i,1);
   afficherAccidents(); saveData(false);
 }
@@ -265,6 +267,7 @@ function ajouterTraitement(){
   afficherTraitements(); saveData(false);
 }
 function supprimerTraitement(i){
+  if(!confirm("Supprimer ce traitement ?")) return;
   données.traitements.splice(i,1);
   afficherTraitements(); saveData(false);
 }
