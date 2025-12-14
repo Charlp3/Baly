@@ -65,7 +65,7 @@ hr{margin:18px 0}
 
 <header>
 Suivi de mon chien 🐶<br>
-<small>© Pierre Charlier 2025 — Version 2.0</small>
+<small>© Pierre Charlier 2025 — Version 2.1</small>
 </header>
 
 <nav>
@@ -199,13 +199,19 @@ function render(type){
   maladies:"listeMaladies",accidents:"listeAccidents",traitements:"listeTraitements",
   vaccins:"listeVaccins",parasites:"listeParasites"
  };
- const c=document.getElementById(map[type]); c.innerHTML="";
+ const c=document.getElementById(map[type]);
+ c.innerHTML="";
+
  data[type].forEach((e,i)=>{
   c.innerHTML+=`
-  <input placeholder="Nom" value="${e.nom}">
-  <input type="date" value="${e.date}">
-  <textarea placeholder="Remarque">${e.note}</textarea>
-  <button class="suppr" onclick="del('${type}',${i})">Supprimer</button><hr>`;
+  <input placeholder="Nom" value="${e.nom}"
+    oninput="data['${type}'][${i}].nom=this.value;saveData(false)">
+  <input type="date" value="${e.date}"
+    onchange="data['${type}'][${i}].date=this.value;saveData(false)">
+  <textarea placeholder="Remarque"
+    oninput="data['${type}'][${i}].note=this.value;saveData(false)">${e.note}</textarea>
+  <button class="suppr" onclick="del('${type}',${i})">Supprimer</button>
+  <hr>`;
  });
 }
 
