@@ -6,297 +6,235 @@
 <title>Suivi de mon chien – v2.0</title>
 
 <style>
-  body { font-family: Arial, sans-serif; margin:0; background:#D0E4F7; color:#1C2A40; }
-  header { background:#2C5E99; color:#fff; text-align:center; padding:15px; }
+body{font-family:Arial,sans-serif;margin:0;background:#D0E4F7;color:#1C2A40}
+header{background:#2C5E99;color:#fff;text-align:center;padding:14px}
 
-  nav { display:flex; background:#1C3B68; flex-wrap:wrap; }
-  nav button{
-    flex:1 1 33%;
-    padding:12px;
-    background:#1C3B68;
-    color:#fff;
-    border:none;
-    font-size:1rem;
-  }
-  nav button.active{
-    background:#D0E4F7;
-    color:#1C3B68;
-    font-weight:bold;
-  }
+nav{display:flex;background:#1C3B68}
+nav button{
+  flex:1;
+  padding:8px 4px;
+  background:#1C3B68;
+  color:#fff;
+  border:none;
+  font-size:0.85rem;
+}
+nav button.active{
+  background:#D0E4F7;
+  color:#1C3B68;
+  font-weight:bold;
+}
 
-  section { display:none; padding:20px; }
-  section.active { display:block; }
+section{display:none;padding:20px}
+section.active{display:block}
 
-  label { display:block; margin-top:10px; font-weight:bold; }
-  input, textarea{
-    width:100%;
-    padding:8px;
-    margin-top:4px;
-    border-radius:4px;
-    border:1px solid #587EA3;
-    background:#F0F8FF;
-    font-size:1rem;
-    box-sizing:border-box;
-  }
+label{display:block;margin-top:10px;font-weight:bold}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin-top:4px;
+  border-radius:4px;
+  border:1px solid #587EA3;
+  background:#F0F8FF;
+  font-size:1rem;
+}
 
-  #fiche label { font-size:1.1rem; }
-  #fiche input, #fiche textarea { font-size:1.15rem; padding:10px; }
+button.action{
+  margin-top:12px;
+  padding:10px 15px;
+  background:#2C5E99;
+  color:#fff;
+  border:none;
+  border-radius:5px;
+}
 
-  button.action{
-    margin-top:12px;
-    padding:10px 15px;
-    background:#2C5E99;
-    color:#fff;
-    border:none;
-    border-radius:5px;
-    font-size:1rem;
-  }
+button.suppr{
+  background:#C0392B;
+  color:#fff;
+  border:none;
+  border-radius:4px;
+  padding:4px 8px;
+  font-size:0.8rem;
+  margin-top:6px;
+}
 
-  button.suppr{
-    background:#C0392B;
-    color:#fff;
-    border:none;
-    border-radius:4px;
-    padding:4px 8px;
-    font-size:0.8rem;
-    margin-top:6px;
-  }
-
-  hr { margin:18px 0; }
-  a { color:#1C3B68; word-break:break-all; }
-  .ligne { margin-bottom:10px; }
+hr{margin:18px 0}
 </style>
 </head>
 
 <body>
 
 <header>
-  Suivi de mon chien 🐶<br>
-  <small>© Pierre Charlier 2025 — Version 1.9d</small>
+Suivi de mon chien 🐶<br>
+<small>© Pierre Charlier 2025 — Version 2.0</small>
 </header>
 
 <nav>
-  <button class="active" onclick="showTab('fiche', this)">Fiche</button>
-  <button onclick="showTab('sante', this)">Santé</button>
-  <button onclick="showTab('liens', this)">Liens Web</button>
+<button class="active" onclick="showTab('fiche',this)">Fiche</button>
+<button onclick="showTab('sante',this)">Santé</button>
+<button onclick="showTab('liens',this)">Liens</button>
 </nav>
 
 <main>
 
-<!-- ================= FICHE ================= -->
+<!-- FICHE -->
 <section id="fiche" class="active">
-  <label>Puce</label><input id="puce">
-  <label>Passeport</label><input id="passeport">
+<label>Puce</label><input id="puce">
+<label>Passeport</label><input id="passeport">
 
-  <label>Date de naissance</label>
-  <input type="date" id="naissance" onchange="updateAge(); saveData(false)">
-  <div><strong>Âge :</strong> <span id="age">-</span></div>
+<label>Date de naissance</label>
+<input type="date" id="naissance" onchange="updateAge();saveData(false)">
+<div><strong>Âge :</strong> <span id="age">-</span></div>
 
-  <label>Poids (kg)</label><input type="number" id="poids">
-  <label>Vétérinaire</label><input id="veto">
-  <label>Téléphone</label><input id="tel">
-  <label>Clinique</label><input id="clinique">
+<label>Poids (kg)</label><input id="poids">
+<label>Vétérinaire</label><input id="veto">
+<label>Téléphone</label><input id="tel">
+<label>Clinique</label><input id="clinique">
 
-  <label>Nourriture</label><textarea id="nourriture"></textarea>
-  <label>Accessoires</label><textarea id="accessoires"></textarea>
-  <label>Autres</label><textarea id="autres"></textarea>
+<label>Nourriture</label><textarea id="nourriture"></textarea>
+<label>Accessoires</label><textarea id="accessoires"></textarea>
+<label>Autres</label><textarea id="autres"></textarea>
 
-  <button class="action" onclick="saveData(true)">💾 Sauvegarder</button>
-  <button class="action" onclick="exportData()">📤 Exporter JSON</button>
-
-  <input type="file" id="importInput" accept="application/json" hidden onchange="importData(event)">
-  <button class="action" onclick="document.getElementById('importInput').click()">📥 Importer</button>
+<button class="action" onclick="saveData(true)">💾 Sauvegarder</button>
+<button class="action" onclick="exportData()">📤 Exporter JSON</button>
+<input type="file" id="importInput" hidden accept="application/json" onchange="importData(event)">
+<button class="action" onclick="importInput.click()">📥 Importer JSON</button>
 </section>
 
-<!-- ================= SANTÉ ================= -->
+<!-- SANTÉ -->
 <section id="sante">
-  <h3>Maladies</h3>
-  <div id="listeMaladies"></div>
-  <button class="action" onclick="ajouterMaladie()">+ Ajouter</button>
-  <hr>
 
-  <h3>Accidents</h3>
-  <div id="listeAccidents"></div>
-  <button class="action" onclick="ajouterAccident()">+ Ajouter</button>
-  <hr>
+<h3>Maladies</h3>
+<div id="listeMaladies"></div>
+<button class="action" onclick="add('maladies')">+ Ajouter</button>
+<hr>
 
-  <h3>Traitements</h3>
-  <div id="listeTraitements"></div>
-  <button class="action" onclick="ajouterTraitement()">+ Ajouter</button>
+<h3>Accidents</h3>
+<div id="listeAccidents"></div>
+<button class="action" onclick="add('accidents')">+ Ajouter</button>
+<hr>
+
+<h3>Traitements</h3>
+<div id="listeTraitements"></div>
+<button class="action" onclick="add('traitements')">+ Ajouter</button>
+<hr>
+
+<h3>Vaccinations</h3>
+<div id="listeVaccins"></div>
+<button class="action" onclick="add('vaccins')">+ Ajouter</button>
+<hr>
+
+<h3>Déparasitages</h3>
+<div id="listeParasites"></div>
+<button class="action" onclick="add('parasites')">+ Ajouter</button>
+
 </section>
 
-<!-- ================= LIENS ================= -->
+<!-- LIENS -->
 <section id="liens">
-  <h3>Liens Web</h3>
-  <input id="nomLien" placeholder="Nom">
-  <input id="urlLien" placeholder="URL (https://...)">
-  <button class="action" onclick="ajouterLien()">+ Ajouter le lien</button>
-  <hr>
-  <div id="listeLiens"></div>
+<input id="nomLien" placeholder="Nom">
+<input id="urlLien" placeholder="URL">
+<button class="action" onclick="addLien()">+ Ajouter</button>
+<hr>
+<div id="listeLiens"></div>
 </section>
 
 </main>
 
 <script>
-const données = {
-  fiche:{},
-  maladies:[],
-  accidents:[],
-  traitements:[],
-  liens:[]
+const data={
+ fiche:{},
+ maladies:[],accidents:[],traitements:[],
+ vaccins:[],parasites:[],
+ liens:[]
 };
 
-function showTab(id, btn){
-  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  if(btn) btn.classList.add("active");
+function showTab(id,btn){
+ document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ btn.classList.add("active");
 }
 
 function updateAge(){
-  if(!naissance.value){ age.textContent="-"; return; }
-  const b=new Date(naissance.value), n=new Date();
-  let a=n.getFullYear()-b.getFullYear();
-  if(n.getMonth()<b.getMonth() || (n.getMonth()==b.getMonth() && n.getDate()<b.getDate())) a--;
-  age.textContent = a + " an" + (a>1?"s":"");
+ if(!naissance.value){age.textContent="-";return;}
+ const b=new Date(naissance.value),n=new Date();
+ let a=n.getFullYear()-b.getFullYear();
+ if(n<b)setTimeout;
+ if(n.getMonth()<b.getMonth()||(n.getMonth()==b.getMonth()&&n.getDate()<b.getDate()))a--;
+ age.textContent=a+" an"+(a>1?"s":"");
 }
 
-function saveData(showAlert=true){
-  données.fiche={
-    puce:puce.value,passeport:passeport.value,naissance:naissance.value,
-    poids:poids.value,veto:veto.value,tel:tel.value,clinique:clinique.value,
-    nourriture:nourriture.value,accessoires:accessoires.value,autres:autres.value
-  };
-  localStorage.setItem("chienData",JSON.stringify(données));
-  if(showAlert) alert("✔ Données sauvegardées");
+function saveData(alertOn=true){
+ data.fiche={puce:puce.value,passeport:passeport.value,naissance:naissance.value,
+ poids:poids.value,veto:veto.value,tel:tel.value,clinique:clinique.value,
+ nourriture:nourriture.value,accessoires:accessoires.value,autres:autres.value};
+ localStorage.setItem("chienData",JSON.stringify(data));
+ if(alertOn)alert("✔ Données sauvegardées");
 }
 
 function exportData(){
-  const blob=new Blob([JSON.stringify(données,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="chien_sauvegarde.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
+ const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(b);a.download="chien_v2.json";a.click();
 }
 
 function importData(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      Object.assign(données, JSON.parse(r.result));
-      localStorage.setItem("chienData",JSON.stringify(données));
-      alert("✔ Importation réussie");
-      location.reload();
-    }catch{ alert("❌ Fichier invalide"); }
-  };
-  r.readAsText(f);
+ const r=new FileReader();
+ r.onload=()=>{Object.assign(data,JSON.parse(r.result));localStorage.setItem("chienData",JSON.stringify(data));location.reload();}
+ r.readAsText(e.target.files[0]);
 }
 
-/* -------- LIENS -------- */
-function ajouterLien(){
-  if(!urlLien.value) return;
-  données.liens.push({nom:nomLien.value||urlLien.value, url:urlLien.value});
-  nomLien.value=""; urlLien.value="";
-  afficherLiens(); saveData(false);
-}
-function supprimerLien(i){
-  if(!confirm("Supprimer ce lien ?")) return;
-  données.liens.splice(i,1);
-  afficherLiens(); saveData(false);
-}
-function afficherLiens(){
-  listeLiens.innerHTML="";
-  données.liens.forEach((l,i)=>{
-    listeLiens.innerHTML+=`
-      <div class="ligne">
-        <strong>${l.nom}</strong><br>
-        <a href="${l.url}" target="_blank">${l.url}</a><br>
-        <button class="suppr" onclick="supprimerLien(${i})">Supprimer</button>
-        <hr>
-      </div>`;
-  });
+function add(type){
+ data[type].push({nom:"",date:"",note:""});
+ render(type); saveData(false);
 }
 
-/* -------- SANTÉ -------- */
-function ajouterMaladie(){
-  données.maladies.push({nom:"",date:"",remarque:""});
-  afficherMaladies(); saveData(false);
-}
-function supprimerMaladie(i){
-  if(!confirm("Supprimer cette maladie ?")) return;
-  données.maladies.splice(i,1);
-  afficherMaladies(); saveData(false);
-}
-function afficherMaladies(){
-  listeMaladies.innerHTML="";
-  données.maladies.forEach((m,i)=>{
-    listeMaladies.innerHTML+=`
-      <input placeholder="Maladie" value="${m.nom}">
-      <input type="date" value="${m.date}">
-      <textarea>${m.remarque}</textarea>
-      <button class="suppr" onclick="supprimerMaladie(${i})">Supprimer</button>
-      <hr>`;
-  });
+function del(type,i){
+ if(!confirm("Supprimer cet élément ?"))return;
+ data[type].splice(i,1); render(type); saveData(false);
 }
 
-function ajouterAccident(){
-  données.accidents.push({type:"",date:"",suite:""});
-  afficherAccidents(); saveData(false);
-}
-function supprimerAccident(i){
-  if(!confirm("Supprimer cet accident ?")) return;
-  données.accidents.splice(i,1);
-  afficherAccidents(); saveData(false);
-}
-function afficherAccidents(){
-  listeAccidents.innerHTML="";
-  données.accidents.forEach((a,i)=>{
-    listeAccidents.innerHTML+=`
-      <input placeholder="Accident" value="${a.type}">
-      <input type="date" value="${a.date}">
-      <textarea>${a.suite}</textarea>
-      <button class="suppr" onclick="supprimerAccident(${i})">Supprimer</button>
-      <hr>`;
-  });
+function render(type){
+ const map={
+  maladies:"listeMaladies",accidents:"listeAccidents",traitements:"listeTraitements",
+  vaccins:"listeVaccins",parasites:"listeParasites"
+ };
+ const c=document.getElementById(map[type]); c.innerHTML="";
+ data[type].forEach((e,i)=>{
+  c.innerHTML+=`
+  <input placeholder="Nom" value="${e.nom}">
+  <input type="date" value="${e.date}">
+  <textarea placeholder="Remarque">${e.note}</textarea>
+  <button class="suppr" onclick="del('${type}',${i})">Supprimer</button><hr>`;
+ });
 }
 
-function ajouterTraitement(){
-  données.traitements.push({nom:"",debut:"",fin:"",posologie:""});
-  afficherTraitements(); saveData(false);
+function addLien(){
+ if(!urlLien.value)return;
+ data.liens.push({nom:nomLien.value||urlLien.value,url:urlLien.value});
+ nomLien.value="";urlLien.value="";renderLiens();saveData(false);
 }
-function supprimerTraitement(i){
-  if(!confirm("Supprimer ce traitement ?")) return;
-  données.traitements.splice(i,1);
-  afficherTraitements(); saveData(false);
+function delLien(i){
+ if(!confirm("Supprimer ce lien ?"))return;
+ data.liens.splice(i,1);renderLiens();saveData(false);
 }
-function afficherTraitements(){
-  listeTraitements.innerHTML="";
-  données.traitements.forEach((t,i)=>{
-    listeTraitements.innerHTML+=`
-      <input placeholder="Traitement" value="${t.nom}">
-      <input type="date" value="${t.debut}">
-      <input type="date" value="${t.fin}">
-      <textarea>${t.posologie}</textarea>
-      <button class="suppr" onclick="supprimerTraitement(${i})">Supprimer</button>
-      <hr>`;
-  });
+function renderLiens(){
+ listeLiens.innerHTML="";
+ data.liens.forEach((l,i)=>{
+  listeLiens.innerHTML+=`
+  <div><strong>${l.nom}</strong><br>
+  <a href="${l.url}" target="_blank">${l.url}</a><br>
+  <button class="suppr" onclick="delLien(${i})">Supprimer</button><hr></div>`;
+ });
 }
 
 window.onload=()=>{
-  const s=JSON.parse(localStorage.getItem("chienData")||"{}");
-  if(!s.fiche) return;
-  Object.assign(données,s);
-  Object.entries(données.fiche).forEach(([k,v])=>{
-    const el=document.getElementById(k);
-    if(el) el.value=v||"";
-  });
-  updateAge();
-  afficherLiens();
-  afficherMaladies();
-  afficherAccidents();
-  afficherTraitements();
+ const s=JSON.parse(localStorage.getItem("chienData")||"{}");
+ Object.assign(data,s);
+ Object.entries(data.fiche||{}).forEach(([k,v])=>{if(window[k])window[k].value=v});
+ updateAge();
+ ["maladies","accidents","traitements","vaccins","parasites"].forEach(render);
+ renderLiens();
 };
 </script>
 
